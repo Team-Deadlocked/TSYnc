@@ -1,43 +1,64 @@
+import signal
+import socket
 import time
-import multiprocessing
-import threading
 import sys
+import os
 
-# Global variable to control the daemon process
-daemon_running = False
+# Check if the current platform is Windows
+WINDOWS = os.name == 'nt'
 
-# Define the function that will continuously check for events
-def event_checker():
-    while daemon_running:
-        # Implement your event checking logic here
-        print("Checking for events...")
-        time.sleep(5)  # Sleep for 5 seconds between each check
+SERVER_ADDRESS = '127.0.0.1'  # Change this to your server's IP address
+SERVER_PORT = 12345  # Change this to your server's port
+PID_FILE = "/tmp/daemon_client.pid" if not WINDOWS else "daemon_client.pid"
 
-# Define the function that will run the event checker in the background
-def run_background():
-    global daemon_running
-    daemon_running = True
-    event_process = multiprocessing.Process(target=event_checker)
-    event_process.start()
-    event_process.join()  # Wait for the process to finish (which it never will)
-    daemon_running = False
+def send_request_to_server():
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+            client_socket.connect((SERVER_ADDRESS, SERVER_PORT))
+            # Send a request to the server
+            client_socket.sendall(b"Hello, server!")
+            # Receive response from the server
+            response = client_socket.recv(1024)
+            print("Received from server:", response.decode())
+    except Exception as e:
+        print("Error:", e)
 
-# Main function to start or stop the background process
 def main():
-    if len(sys.argv) != 2 or sys.argv[1] not in ['start', 'stop']:
-        print("Usage: python script.py [start|stop]")
-        sys.exit(1)
+    while True:
+        send_request_to_server()
+        time.sleep(5)  # Send request every 5 seconds
 
-    if sys.argv[1] == 'start':
-        background_thread = threading.Thread(target=run_background)
-        background_thread.daemon = True  # Daemonize the thread so it doesn't prevent program exit
-        background_thread.start()
-        print("Daemon started.")
-    elif sys.argv[1] == 'stop':
-        global daemon_running
-        daemon_running = False
+def start_daemon():
+    # On Windows, we can't daemonize, so just start the main function directly
+    if WINDOWS:
+        main()
+    else:
+        from daemonize import Daemonize
+        daemon = Daemonize(app="daemon_client", pid=PID_FILE, action=main)
+        daemon.start()
+
+def stop_daemon():
+    if os.path.exists(PID_FILE):
+        with open(PID_FILE, 'r') as f:
+            pid = int(f.read().strip())
+        if WINDOWS:
+            os.system(f"taskkill /F /PID {pid}")
+        else:
+            os.kill(pid, signal.SIGTERM)
+        os.remove(PID_FILE)
         print("Daemon stopped.")
+    else:
+        print("Daemon is not running.")
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) != 2 or sys.argv[1] not in ['start', 'stop']:
+        print("Usage: python daemon_client.py [start|stop]")
+        sys.exit(1)
 
+    command = sys.argv[1]
+    if command == 'start':
+        start_daemon()
+        print("Daemon started.")
+    elif command == 'stop':
+        stop_daemon()
+        print("Daemon stopped.")
