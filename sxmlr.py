@@ -3,7 +3,7 @@ import errno
 import logging
 import xmlrpc.client
 
-logger = logging.getLogger('syncIt')
+logger = logging.getLogger('Tsync')
 logger.setLevel(logging.DEBUG)
 def make_safer(fn):
     def wrapped(*args, **kwargs):
