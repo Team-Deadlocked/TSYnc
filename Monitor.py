@@ -3,12 +3,16 @@ import logging
 import configparser
 import os
 import sqlite3
+import subprocess
 from node import Node
 
-from server import Server, ClientData
+from Server import Server, ClientData
 from client import Client
 
 logger = logging.getLogger('syncIt')
+
+CLIENT_PORT = 9895  # Fixed port for clients
+SERVER_PORT = 9894  # Fixed port for servers
 
 
 def setup_logging(log_filename):
@@ -69,21 +73,18 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument(
-        '-ip', help='Specify the ip address of this machine', required=True)
-
-    parser.add_argument(
-        '-port', help='Specify the port of this machine to run rpc server', required=True)
-
-    parser.add_argument(
-        '-uname', help='Specify the user name of this machine', required=True)
-
-    parser.add_argument(
         '-role', help='Specify the role of this machine - client or server', required=True)
 
     args = parser.parse_args()
 
+    # Retrieving IP address using 'hostname -I' command
+    ip_address = subprocess.check_output(['hostname', '-I']).decode().strip()
+
+    # Retrieving username using 'whoami' command
+    user_name = subprocess.check_output(['whoami']).decode().strip()
+
     # start logging
-    setup_logging("syncit.log.%s-%s" % (args.ip, args.port));
+    setup_logging("syncit.log.%s-%s" % (ip_address, CLIENT_PORT if args.role == 'client' else SERVER_PORT))
     logger = logging.getLogger('syncIt')
 
     # Read config file
@@ -95,10 +96,9 @@ def main():
     conn = sqlite3.connect('database.db')
 
     if (args.role == 'server'):
-        node = Server(args.role, args.ip, int(args.port), args.uname, get_watch_dirs(args.uname, conn),
-                      get_clients(conn))
+        node = Server(args.role, ip_address, SERVER_PORT, user_name, get_watch_dirs(user_name, conn), get_clients(conn))
     else:
-        node = Client(args.role, args.ip, int(args.port), args.uname, get_watch_dirs(args.uname, conn),
+        node = Client(args.role, ip_address, CLIENT_PORT, user_name, get_watch_dirs(user_name, conn),
                       get_server_tuple(conn))
 
     node.activate()

@@ -1,0 +1,162 @@
+Index: Monitor.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import argparse\r\nimport logging\r\nimport configparser\r\nimport os\r\nimport sqlite3\r\nfrom node import Node\r\n\r\nfrom server import Server, ClientData\r\nfrom client import Client\r\n\r\nlogger = logging.getLogger('syncIt')\r\n\r\n\r\ndef setup_logging(log_filename):\r\n    handler = logging.FileHandler(log_filename)\r\n    #    handler = logging.StreamHandler()\r\n    logger.setLevel(logging.DEBUG)\r\n    logger.addHandler(handler)\r\n    print('Logging started on file %s' % log_filename)\r\n\r\n\r\ndef get_watch_dirs(user_name, conn):\r\n    watch_dirs = []\r\n    c = conn.cursor()\r\n    c.execute(\"SELECT * FROM Directories\")\r\n    rows = c.fetchall()\r\n    for row in rows:\r\n        dir = os.path.expanduser(row[0])\r\n        my_dir = Node.get_dest_path(dir, user_name)\r\n        watch_dirs.append(my_dir)\r\n    conn.commit()\r\n    # for key, value in config.items('syncit.dirs'):\r\n    #    dir = os.path.expanduser(value.strip())\r\n    #    my_dir = Node.get_dest_path(dir, user_name)\r\n    #    watch_dirs.append(my_dir)\r\n    logger.debug(\"watched dirs \", watch_dirs)\r\n    return watch_dirs\r\n\r\n\r\ndef get_clients(conn):\r\n    clients = []\r\n    c = conn.cursor()\r\n    c.execute(\"SELECT * FROM Clients\")\r\n    rows = c.fetchall()\r\n    for row in rows:\r\n        client_uname, client_ip, client_port = row\r\n        clients.append(ClientData(client_uname, client_ip, int(client_port)))\r\n    conn.commit()\r\n    # for key, value in config.items('syncit.clients'):\r\n    #    words = value.split(',')\r\n    #    client_uname, client_ip, client_port = [word.strip() for word in words]\r\n    #    clients.append(ClientData(client_uname, client_ip, int(client_port)))\r\n    return clients\r\n\r\n\r\ndef get_server_tuple(conn):\r\n    c = conn.cursor()\r\n    c.execute(\"SELECT * FROM Servers\")\r\n    row = c.fetchone()\r\n    server_uname, server_ip, server_port = row\r\n    conn.commit()\r\n    return server_uname, server_ip, server_port\r\n\r\n\r\ndef main():\r\n    # use argparse to get role, ip, port and user name\r\n    parser = argparse.ArgumentParser(\r\n        description=\"\"\"PySyncIt\"\"\",\r\n        formatter_class=argparse.RawDescriptionHelpFormatter)\r\n\r\n    parser.add_argument(\r\n        '-ip', help='Specify the ip address of this machine', required=True)\r\n\r\n    parser.add_argument(\r\n        '-port', help='Specify the port of this machine to run rpc server', required=True)\r\n\r\n    parser.add_argument(\r\n        '-uname', help='Specify the user name of this machine', required=True)\r\n\r\n    parser.add_argument(\r\n        '-role', help='Specify the role of this machine - client or server', required=True)\r\n\r\n    args = parser.parse_args()\r\n\r\n    # start logging\r\n    setup_logging(\"syncit.log.%s-%s\" % (args.ip, args.port));\r\n    logger = logging.getLogger('syncIt')\r\n\r\n    # Read config file\r\n    # config = configparser.ConfigParser()\r\n    # logger.info(\"Using config file: syncit.cfg\")\r\n    # config.read('syncit.cfg')\r\n\r\n    # connect database\r\n    conn = sqlite3.connect('database.db')\r\n\r\n    if (args.role == 'server'):\r\n        node = Server(args.role, args.ip, int(args.port), args.uname, get_watch_dirs(args.uname, conn),\r\n                      get_clients(conn))\r\n    else:\r\n        node = Client(args.role, args.ip, int(args.port), args.uname, get_watch_dirs(args.uname, conn),\r\n                      get_server_tuple(conn))\r\n\r\n    node.activate()\r\n    conn.close()\r\n\r\n\r\nif __name__ == \"__main__\":\r\n    main()\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Monitor.py b/Monitor.py
+--- a/Monitor.py	(revision a71843c8580807a07b61a5d10ea24e51b1382940)
++++ b/Monitor.py	(date 1714423815652)
+@@ -3,6 +3,7 @@
+ import configparser
+ import os
+ import sqlite3
++import subprocess
+ from node import Node
+ 
+ from server import Server, ClientData
+@@ -10,6 +11,9 @@
+ 
+ logger = logging.getLogger('syncIt')
+ 
++CLIENT_PORT = 9895  # Fixed port for clients
++SERVER_PORT = 9894  # Fixed port for servers
++
+ 
+ def setup_logging(log_filename):
+     handler = logging.FileHandler(log_filename)
+@@ -68,22 +72,19 @@
+         description="""PySyncIt""",
+         formatter_class=argparse.RawDescriptionHelpFormatter)
+ 
+-    parser.add_argument(
+-        '-ip', help='Specify the ip address of this machine', required=True)
+-
+-    parser.add_argument(
+-        '-port', help='Specify the port of this machine to run rpc server', required=True)
+-
+-    parser.add_argument(
+-        '-uname', help='Specify the user name of this machine', required=True)
+-
+     parser.add_argument(
+         '-role', help='Specify the role of this machine - client or server', required=True)
+ 
+     args = parser.parse_args()
+ 
++    # Retrieving IP address using 'hostname -I' command
++    ip_address = subprocess.check_output(['hostname', '-I']).decode().strip()
++
++    # Retrieving username using 'whoami' command
++    user_name = subprocess.check_output(['whoami']).decode().strip()
++
+     # start logging
+-    setup_logging("syncit.log.%s-%s" % (args.ip, args.port));
++    setup_logging("syncit.log.%s-%s" % (ip_address, CLIENT_PORT if args.role == 'client' else SERVER_PORT))
+     logger = logging.getLogger('syncIt')
+ 
+     # Read config file
+@@ -95,10 +96,9 @@
+     conn = sqlite3.connect('database.db')
+ 
+     if (args.role == 'server'):
+-        node = Server(args.role, args.ip, int(args.port), args.uname, get_watch_dirs(args.uname, conn),
+-                      get_clients(conn))
++        node = Server(args.role, ip_address, SERVER_PORT, user_name, get_watch_dirs(user_name, conn), get_clients(conn))
+     else:
+-        node = Client(args.role, args.ip, int(args.port), args.uname, get_watch_dirs(args.uname, conn),
++        node = Client(args.role, ip_address, CLIENT_PORT, user_name, get_watch_dirs(user_name, conn),
+                       get_server_tuple(conn))
+ 
+     node.activate()
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"10d2ee52-a753-457f-9640-e0ad2b06099b\" name=\"Changes\" comment=\"Changed in sxmlr.py\">\r\n      <change afterPath=\"$PROJECT_DIR$/client.py\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"Python Script\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"FlaskConsoleOptions\" custom-start-script=\"import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\\nApp: %s [%s]\\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))\">\r\n    <envs>\r\n      <env key=\"FLASK_APP\" value=\"app\" />\r\n    </envs>\r\n    <option name=\"myCustomStartScript\" value=\"import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\\nApp: %s [%s]\\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))\" />\r\n    <option name=\"myEnvs\">\r\n      <map>\r\n        <entry key=\"FLASK_APP\" value=\"app\" />\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_BRANCH_BY_REPOSITORY\">\r\n      <map>\r\n        <entry key=\"$PROJECT_DIR$\" value=\"feature/adding-tausif's-server-client/yead\" />\r\n      </map>\r\n    </option>\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"GitHubPullRequestSearchHistory\">{\r\n  &quot;lastFilter&quot;: {\r\n    &quot;state&quot;: &quot;OPEN&quot;,\r\n    &quot;assignee&quot;: &quot;yeadkhail&quot;\r\n  }\r\n}</component>\r\n  <component name=\"GithubPullRequestsUISettings\">{\r\n  &quot;selectedUrlAndAccountId&quot;: {\r\n    &quot;url&quot;: &quot;https://github.com/Team-Deadlocked/TSYnc.git&quot;,\r\n    &quot;accountId&quot;: &quot;bc1f8ebd-5e26-4a43-a27c-9d01d1495e7e&quot;\r\n  }\r\n}</component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 8\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"2ettO5vr6fNt5ieLjImbM4QYY6J\" />\r\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">{\r\n  &quot;keyToString&quot;: {\r\n    &quot;Python.main.executor&quot;: &quot;Run&quot;,\r\n    &quot;Python.server.executor&quot;: &quot;Run&quot;,\r\n    &quot;Python.start main.executor&quot;: &quot;Run&quot;,\r\n    &quot;Python.stop main.executor&quot;: &quot;Run&quot;,\r\n    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,\r\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\r\n    &quot;git-widget-placeholder&quot;: &quot;master&quot;,\r\n    &quot;last_opened_file_path&quot;: &quot;/home/yead/programming/projects/TSYnc/tmp&quot;,\r\n    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,\r\n    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,\r\n    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;\r\n  }\r\n}</component>\r\n  <component name=\"RecentsManager\">\r\n    <key name=\"MoveFile.RECENT_KEYS\">\r\n      <recent name=\"$PROJECT_DIR$/testing\" />\r\n    </key>\r\n  </component>\r\n  <component name=\"RunManager\" selected=\"Python.stop main\">\r\n    <configuration name=\"main\" type=\"PythonConfigurationType\" factoryName=\"Python\" nameIsGenerated=\"true\">\r\n      <module name=\"TSYnc\" />\r\n      <option name=\"ENV_FILES\" value=\"\" />\r\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\r\n      <option name=\"PARENT_ENVS\" value=\"true\" />\r\n      <envs>\r\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\r\n      </envs>\r\n      <option name=\"SDK_HOME\" value=\"\" />\r\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\r\n      <option name=\"IS_MODULE_SDK\" value=\"true\" />\r\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\r\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\r\n      <EXTENSION ID=\"PythonCoverageRunConfigurationExtension\" runner=\"coverage.py\" />\r\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/testing/main.py\" />\r\n      <option name=\"PARAMETERS\" value=\"\" />\r\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\r\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\r\n      <option name=\"MODULE_MODE\" value=\"false\" />\r\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\r\n      <option name=\"INPUT_FILE\" value=\"\" />\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <configuration name=\"server\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <module name=\"TSYnc\" />\r\n      <option name=\"ENV_FILES\" value=\"\" />\r\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\r\n      <option name=\"PARENT_ENVS\" value=\"true\" />\r\n      <envs>\r\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\r\n      </envs>\r\n      <option name=\"SDK_HOME\" value=\"\" />\r\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\r\n      <option name=\"IS_MODULE_SDK\" value=\"true\" />\r\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\r\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\r\n      <EXTENSION ID=\"PythonCoverageRunConfigurationExtension\" runner=\"coverage.py\" />\r\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/testing/server.py\" />\r\n      <option name=\"PARAMETERS\" value=\"\" />\r\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\r\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\r\n      <option name=\"MODULE_MODE\" value=\"false\" />\r\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\r\n      <option name=\"INPUT_FILE\" value=\"\" />\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <configuration name=\"start main\" type=\"PythonConfigurationType\" factoryName=\"Python\">\r\n      <module name=\"TSYnc\" />\r\n      <option name=\"ENV_FILES\" value=\"\" />\r\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\r\n      <option name=\"PARENT_ENVS\" value=\"true\" />\r\n      <envs>\r\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\r\n      </envs>\r\n      <option name=\"SDK_HOME\" value=\"\" />\r\n      <option name=\"WORKING_DIRECTORY\" value=\"\" />\r\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\r\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\r\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\r\n      <EXTENSION ID=\"PythonCoverageRunConfigurationExtension\" runner=\"coverage.py\" />\r\n      <option name=\"SCRIPT_NAME\" value=\"main.py\" />\r\n      <option name=\"PARAMETERS\" value=\"start\" />\r\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\r\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\r\n      <option name=\"MODULE_MODE\" value=\"false\" />\r\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\r\n      <option name=\"INPUT_FILE\" value=\"\" />\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <configuration name=\"stop main\" type=\"PythonConfigurationType\" factoryName=\"Python\">\r\n      <module name=\"TSYnc\" />\r\n      <option name=\"ENV_FILES\" value=\"\" />\r\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\r\n      <option name=\"PARENT_ENVS\" value=\"true\" />\r\n      <envs>\r\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\r\n      </envs>\r\n      <option name=\"SDK_HOME\" value=\"\" />\r\n      <option name=\"WORKING_DIRECTORY\" value=\"\" />\r\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\r\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\r\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\r\n      <EXTENSION ID=\"PythonCoverageRunConfigurationExtension\" runner=\"coverage.py\" />\r\n      <option name=\"SCRIPT_NAME\" value=\"main.py\" />\r\n      <option name=\"PARAMETERS\" value=\"stop\" />\r\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\r\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\r\n      <option name=\"MODULE_MODE\" value=\"false\" />\r\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\r\n      <option name=\"INPUT_FILE\" value=\"\" />\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <list>\r\n      <item itemvalue=\"Python.main\" />\r\n      <item itemvalue=\"Python.start main\" />\r\n      <item itemvalue=\"Python.stop main\" />\r\n      <item itemvalue=\"Python.server\" />\r\n    </list>\r\n    <recent_temporary>\r\n      <list>\r\n        <item itemvalue=\"Python.server\" />\r\n      </list>\r\n    </recent_temporary>\r\n  </component>\r\n  <component name=\"SharedIndexes\">\r\n    <attachedChunks>\r\n      <set>\r\n        <option value=\"bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-PY-241.14494.241\" />\r\n        <option value=\"bundled-python-sdk-0509580d9d50-28c9f5db9ffe-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.14494.241\" />\r\n      </set>\r\n    </attachedChunks>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"10d2ee52-a753-457f-9640-e0ad2b06099b\" name=\"Changes\" comment=\"\" />\r\n      <created>1712735666946</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1712735666946</updated>\r\n      <workItem from=\"1712735672373\" duration=\"6000\" />\r\n      <workItem from=\"1712737864440\" duration=\"2974000\" />\r\n      <workItem from=\"1712741063210\" duration=\"1220000\" />\r\n      <workItem from=\"1712980847574\" duration=\"466000\" />\r\n      <workItem from=\"1712981373059\" duration=\"442000\" />\r\n      <workItem from=\"1712981925289\" duration=\"6272000\" />\r\n      <workItem from=\"1714292739319\" duration=\"3419000\" />\r\n      <workItem from=\"1714310277340\" duration=\"3292000\" />\r\n      <workItem from=\"1714406015285\" duration=\"1490000\" />\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\"testing out pycharm\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1712738015847</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1712738015847</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00002\" summary=\"Created a demo logic for the deamon\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1712739008450</created>\r\n      <option name=\"number\" value=\"00002\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1712739008450</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00003\" summary=\"created a deamon to continiously send request to the server  in the background. Works as expected and added logic for both windows and linux\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1712983017679</created>\r\n      <option name=\"number\" value=\"00003\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1712983017679</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00004\" summary=\"Chaged the directory sturcture and added and completed sxmlr.py to handle the xmlrpc requests and connections.\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1714310908826</created>\r\n      <option name=\"number\" value=\"00004\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1714310908826</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00005\" summary=\"Changed in sxmlr.py\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1714311140327</created>\r\n      <option name=\"number\" value=\"00005\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00005\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1714311140327</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"6\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State />\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <MESSAGE value=\"testing out pycharm\" />\r\n    <MESSAGE value=\"Created a demo logic for the deamon\" />\r\n    <MESSAGE value=\"created a deamon to continiously send request to the server  in the background. Works as expected and added logic for both windows and linux\" />\r\n    <MESSAGE value=\"Chaged the directory sturcture and added and completed sxmlr.py to handle the xmlrpc requests and connections.\" />\r\n    <MESSAGE value=\"Changed in sxmlr.py\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"Changed in sxmlr.py\" />\r\n  </component>\r\n  <component name=\"com.intellij.coverage.CoverageDataManagerImpl\">\r\n    <SUITE FILE_PATH=\"coverage/TSYnc$main.coverage\" NAME=\"main Coverage Results\" MODIFIED=\"1712740605461\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"true\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$\" />\r\n    <SUITE FILE_PATH=\"coverage/TSYnc$server.coverage\" NAME=\"server Coverage Results\" MODIFIED=\"1712980944130\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"true\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$\" />\r\n    <SUITE FILE_PATH=\"coverage/TSYnc$stop_main.coverage\" NAME=\"stop main Coverage Results\" MODIFIED=\"1712989956810\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"true\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"\" />\r\n    <SUITE FILE_PATH=\"coverage/TSYnc$start_main.coverage\" NAME=\"start main Coverage Results\" MODIFIED=\"1712989938898\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"true\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision a71843c8580807a07b61a5d10ea24e51b1382940)
++++ b/.idea/workspace.xml	(date 1714423816174)
+@@ -4,9 +4,14 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="10d2ee52-a753-457f-9640-e0ad2b06099b" name="Changes" comment="Changed in sxmlr.py">
+-      <change afterPath="$PROJECT_DIR$/client.py" afterDir="false" />
++    <list default="true" id="10d2ee52-a753-457f-9640-e0ad2b06099b" name="Changes" comment="created a deamon to continiously send request to the server  in the background. Works as expected and added logic for both windows and linux">
++      <change afterPath="$PROJECT_DIR$/sxmlr.py" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/TSYnc.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/TSYnc.iml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/client.py" beforeDir="false" afterPath="$PROJECT_DIR$/testing/client.py" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/testing/main.py" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/testing/server.py" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -212,8 +217,7 @@
+       <workItem from="1712981373059" duration="442000" />
+       <workItem from="1712981925289" duration="6272000" />
+       <workItem from="1714292739319" duration="3419000" />
+-      <workItem from="1714310277340" duration="3292000" />
+-      <workItem from="1714406015285" duration="1490000" />
++      <workItem from="1714310277340" duration="408000" />
+     </task>
+     <task id="LOCAL-00001" summary="testing out pycharm">
+       <option name="closed" value="true" />
+@@ -239,23 +243,7 @@
+       <option name="project" value="LOCAL" />
+       <updated>1712983017679</updated>
+     </task>
+-    <task id="LOCAL-00004" summary="Chaged the directory sturcture and added and completed sxmlr.py to handle the xmlrpc requests and connections.">
+-      <option name="closed" value="true" />
+-      <created>1714310908826</created>
+-      <option name="number" value="00004" />
+-      <option name="presentableId" value="LOCAL-00004" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1714310908826</updated>
+-    </task>
+-    <task id="LOCAL-00005" summary="Changed in sxmlr.py">
+-      <option name="closed" value="true" />
+-      <created>1714311140327</created>
+-      <option name="number" value="00005" />
+-      <option name="presentableId" value="LOCAL-00005" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1714311140327</updated>
+-    </task>
+-    <option name="localTasksCounter" value="6" />
++    <option name="localTasksCounter" value="4" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+@@ -276,9 +264,7 @@
+     <MESSAGE value="testing out pycharm" />
+     <MESSAGE value="Created a demo logic for the deamon" />
+     <MESSAGE value="created a deamon to continiously send request to the server  in the background. Works as expected and added logic for both windows and linux" />
+-    <MESSAGE value="Chaged the directory sturcture and added and completed sxmlr.py to handle the xmlrpc requests and connections." />
+-    <MESSAGE value="Changed in sxmlr.py" />
+-    <option name="LAST_COMMIT_MESSAGE" value="Changed in sxmlr.py" />
++    <option name="LAST_COMMIT_MESSAGE" value="created a deamon to continiously send request to the server  in the background. Works as expected and added logic for both windows and linux" />
+   </component>
+   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+     <SUITE FILE_PATH="coverage/TSYnc$main.coverage" NAME="main Coverage Results" MODIFIED="1712740605461" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"Black\">\r\n    <option name=\"sdkName\" value=\"Python 3.9\" />\r\n  </component>\r\n  <component name=\"ProjectRootManager\" version=\"2\" project-jdk-name=\"Python 3.11\" project-jdk-type=\"Python SDK\" />\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision a71843c8580807a07b61a5d10ea24e51b1382940)
++++ b/.idea/misc.xml	(date 1714423822124)
+@@ -3,5 +3,5 @@
+   <component name="Black">
+     <option name="sdkName" value="Python 3.9" />
+   </component>
+-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.11" project-jdk-type="Python SDK" />
++  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12" project-jdk-type="Python SDK" />
+ </project>
+\ No newline at end of file
