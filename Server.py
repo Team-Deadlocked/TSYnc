@@ -18,6 +18,15 @@ def is_collision_file(filename):
     else:
         return True
 
+class ClientData(object):
+    """Data corresponding to each client residing in server object"""
+    def __init__(self, client_uname, client_ip, client_port):
+        self.available = False
+        self.mfiles = PersistentSet('server-%s.pkl'%(client_uname))
+        self.uname = client_uname
+        self.ip = client_ip
+        self.port = client_port
+
 class Server(Base):
     def __init__(self, role,ip,port,uname,dirs,clients):
         super(Server,self).__init__(role,ip,port,uname,dirs)
