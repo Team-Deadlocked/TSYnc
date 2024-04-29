@@ -4,7 +4,7 @@ import configparser
 import os
 import sqlite3
 import subprocess
-from node import Node
+from Parent import Base
 
 from Server import Server, ClientData
 from client import Client
@@ -30,7 +30,7 @@ def get_watch_dirs(user_name, conn):
     rows = c.fetchall()
     for row in rows:
         dir = os.path.expanduser(row[0])
-        my_dir = Node.get_dest_path(dir, user_name)
+        my_dir = Base.get_path(dir, user_name)
         watch_dirs.append(my_dir)
     conn.commit()
     # for key, value in config.items('syncit.dirs'):
