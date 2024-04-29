@@ -9,6 +9,7 @@ import os
 import sxmlr
 
 logger=logging.getLogger("TSYnc")
+logger.setLevel(logging.DEBUG)
 
 def is_collision_file(filename):
     backup_pattern = re.compile(r"\.backup\.[1-9]+\.")

@@ -8,6 +8,7 @@ import subprocess
 import traceback
 
 logger=logging.getLogger("TSYnc")
+logger.setLevel(logging.DEBUG)
 
 class functionHandler(SimpleXMLRPCRequestHandler):#needed class to return a requested function call from server side
     def _dispatch(self, method, params):
