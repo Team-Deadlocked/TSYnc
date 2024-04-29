@@ -41,9 +41,17 @@ class Watchdog(ProcessEvent):
 
     def process_IN_MODIFY(self, event):
         filename = os.path.join(event.path, event.name)
-        if not self.pulled_files.__contains__(filename):
-            self.mfiles.add(filename, time.time())
-            logger.info("process_IN_MODIFY in client.py -> Modified file: %s", filename)
+        current_time = time.time()
+        if not self.pulled_files.__contains__(filename):  # Check if the file is in pulled_files
+            file_exists = False
+            for filedata in self.mfiles.list():
+                if filedata.name == filename:
+                    file_exists = True
+                    last_modified_time = filedata.time
+                    break
+            if file_exists and current_time - last_modified_time > 5:
+                self.mfiles.add(filename, current_time)
+                logger.info("Modified file: %s", filename)
         else:
             self.pulled_files.remove(filename)
 
