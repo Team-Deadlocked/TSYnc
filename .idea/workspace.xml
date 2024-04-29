@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="10d2ee52-a753-457f-9640-e0ad2b06099b" name="Changes" comment="edited some stuff and added client.py">
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+    <list default="true" id="10d2ee52-a753-457f-9640-e0ad2b06099b" name="Changes" comment="Changed in sxmlr.py">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Monitor.py" beforeDir="false" afterPath="$PROJECT_DIR$/Monitor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database.db" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,7 +36,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="feature/adding-tausif's-server-client/yead" />
+        <entry key="$PROJECT_DIR$" value="master" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -68,8 +70,7 @@
     "Python.stop main.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "master",
+    "git-widget-placeholder": "feature/monitor__database/shahir",
     "last_opened_file_path": "/home/yead/programming/projects/TSYnc/tmp",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -187,6 +188,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.server" />
+        <item itemvalue="Python.server" />
+        <item itemvalue="Python.server" />
       </list>
     </recent_temporary>
   </component>
@@ -214,7 +217,7 @@
       <workItem from="1712981925289" duration="6272000" />
       <workItem from="1714292739319" duration="3419000" />
       <workItem from="1714310277340" duration="3292000" />
-      <workItem from="1714406015285" duration="13851000" />
+      <workItem from="1714406015285" duration="1490000" />
     </task>
     <task id="LOCAL-00001" summary="testing out pycharm">
       <option name="closed" value="true" />
@@ -256,15 +259,7 @@
       <option name="project" value="LOCAL" />
       <updated>1714311140327</updated>
     </task>
-    <task id="LOCAL-00006" summary="edited some stuff and added client.py">
-      <option name="closed" value="true" />
-      <created>1714410975443</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1714410975443</updated>
-    </task>
-    <option name="localTasksCounter" value="7" />
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -287,8 +282,7 @@
     <MESSAGE value="created a deamon to continiously send request to the server  in the background. Works as expected and added logic for both windows and linux" />
     <MESSAGE value="Chaged the directory sturcture and added and completed sxmlr.py to handle the xmlrpc requests and connections." />
     <MESSAGE value="Changed in sxmlr.py" />
-    <MESSAGE value="edited some stuff and added client.py" />
-    <option name="LAST_COMMIT_MESSAGE" value="edited some stuff and added client.py" />
+    <option name="LAST_COMMIT_MESSAGE" value="Changed in sxmlr.py" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/TSYnc$main.coverage" NAME="main Coverage Results" MODIFIED="1712740605461" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
