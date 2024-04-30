@@ -7,6 +7,7 @@ from Parent import Base
 import subprocess
 import os
 import sxmlr
+from persistance import PersistentSet
 
 logger=logging.getLogger("TSYnc")
 logger.setLevel(logging.DEBUG)
@@ -114,5 +115,5 @@ class Server(Base):
 
     def activate(self):
         """ Activate Server Node """
-        super(Server, self).activate()
+        super(Server, self).commence()
         self.find_available_clients()

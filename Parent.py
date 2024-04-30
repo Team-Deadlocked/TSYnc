@@ -46,7 +46,7 @@ class Base(object):
                 os.makedirs(dir)
 
     def begin(self):
-        server = SimpleXMLRPCServer(("0.0.0.0",self.port), allowed=True)
+        server = SimpleXMLRPCServer(("0.0.0.0", self.port), allow_none=True)
         server.register_instance(self)
         server.register_introspection_functions()
         thread = threading.Thread(target=server.serve_forever)#run the program asynchoronously so that the threads run separately

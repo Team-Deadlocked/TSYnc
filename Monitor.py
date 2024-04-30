@@ -11,8 +11,8 @@ from client import Client
 
 logger = logging.getLogger('syncIt')
 
-CLIENT_PORT = 9895  # Fixed port for clients
-SERVER_PORT = 9894  # Fixed port for servers
+CLIENT_PORT = 8082  # Fixed port for clients
+SERVER_PORT = 8081  # Fixed port for servers
 
 
 def setup_logging(log_filename):
@@ -37,7 +37,7 @@ def get_watch_dirs(user_name, conn):
     #    dir = os.path.expanduser(value.strip())
     #    my_dir = Node.get_dest_path(dir, user_name)
     #    watch_dirs.append(my_dir)
-    logger.debug("watched dirs ", watch_dirs)
+    logger.debug("watched dirs %s", watch_dirs)
     return watch_dirs
 
 
@@ -87,19 +87,20 @@ def main():
     setup_logging("syncit.log.%s-%s" % (ip_address, CLIENT_PORT if args.role == 'client' else SERVER_PORT))
     logger = logging.getLogger('syncIt')
 
-    # Read config file
-    # config = configparser.ConfigParser()
-    # logger.info("Using config file: syncit.cfg")
-    # config.read('syncit.cfg')
-
     # connect database
     conn = sqlite3.connect('database.db')
 
     if (args.role == 'server'):
         node = Server(args.role, ip_address, SERVER_PORT, user_name, get_watch_dirs(user_name, conn), get_clients(conn))
     else:
+        server_uname, server_ip, server_port = get_server_tuple(conn)
+        try:
+            server_port = int(server_port)
+        except ValueError:
+            logger.error("Server port must be an integer.")
+            return
         node = Client(args.role, ip_address, CLIENT_PORT, user_name, get_watch_dirs(user_name, conn),
-                      get_server_tuple(conn))
+                      (server_uname, server_ip, server_port))
 
     node.activate()
     conn.close()

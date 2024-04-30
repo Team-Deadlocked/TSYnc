@@ -1,6 +1,8 @@
 import logging
 import os
+import xmlrpc
 
+from persistance import FileData, FilesPersistentSet
 import pyinotify
 from pyinotify import WatchManager
 from pyinotify import ProcessEvent
@@ -16,10 +18,10 @@ logger = logging.getLogger('TSync')
 logger.setLevel(logging.DEBUG)
 
 class Watchdog(ProcessEvent):
-    def my_init(self, mfiles,rfiles,pulled_files):
+    def __init__(self, mfiles, rfiles, pulledfiles):
         self.mfiles = mfiles
         self.rfiles = rfiles
-        self.pulled_files = pulled_files
+        self.pulled_files = pulledfiles
 
     def process_IN_CREATE(self, event):
         filename = os.path.join(event.path, event.name)
@@ -98,14 +100,14 @@ class Client(Base):
         return pubkey
 
     def find_modified(self):
-        for directory in self.watch_dirs:
+        for directory in self.directories:
             for root, _, files in os.walk(directory):
                 for file in files:
                     file_path = os.path.join(root, file)
                     mtime = os.path.getmtime(file_path)
                     last_modified = self.mfiles.get_modified_timestamp()  # Get the timestamp
                     if last_modified is not None and mtime > last_modified:
-                        logger.debug("find_modified_files from clent.py -> File %s modified", file_path)
+                        logger.debug("File %s modified", file_path)
                         self.mfiles.add(file_path, mtime)
 
 
@@ -136,21 +138,27 @@ class Client(Base):
                 break
 
     def watch_files(self):
-        wm = WatchManager()
-        mask = pyinotify.IN_CREATE | pyinotify.IN_DELETE | pyinotify.IN_MODIFY
-        notifier = pyinotify.Notifier(wm, Watchdog(self.mfiles, self.rfiles, self.pulled_files))
-        logger.debug("watch_files from client.py -> watch_dirs %s", self.watch_dirs)
-        for watch_dir in self.watch_dirs:
-            wm.add_watch(os.path.expanduser(watch_dir), mask, rec=False, auto_add=True)
-        while True:
-            try:
-                time.sleep(5)
-                notifier.process_events()
-                if notifier.check_events():
-                    notifier.read_events()
-            except KeyboardInterrupt:
-                notifier.stop()
-                break
+        try:
+            wm = WatchManager()
+            # watched events
+            mask = pyinotify.IN_DELETE | pyinotify.IN_CREATE | pyinotify.IN_MODIFY
+            notifier = pyinotify.Notifier(wm, Watchdog(self.mfiles, self.rfiles, self.pulled_files))
+
+            logger.debug("watched dir %s", self.directories)
+            for watch_dir in self.directories:
+                wm.add_watch(os.path.expanduser(watch_dir), mask, rec=False, auto_add=True)
+            while True:
+                try:
+                    time.sleep(5)
+                    notifier.process_events()
+                    if notifier.check_events():
+                        notifier.read_events()
+                except KeyboardInterrupt:
+                    notifier.stop()
+                    break
+        except Exception as e:
+            logger.error("Exception occurred in watch_files: %s", str(e))
+            raise
 
     def start_watch_thread(self):
         watch_thread = threading.Thread(target=self.watch_files)
@@ -164,7 +172,15 @@ class Client(Base):
         logger.debug("mark_presence from client.py -> client marked available")
 
     def activate(self):
-        super(Client, self).activate()
+        super(Client, self).commence()
         self.start_watch_thread()
-        self.mark_presence()
+
+        def activate(self):
+            try:
+                self.mark_presence()
+            except xmlrpc.client.ProtocolError as err:
+                logger.error("Failed to connect to RPC server at %s:%d", self.server_ip, self.server_port)
+                logger.error("Error: %s", err)
+                return
+            # rest of the method
         self.find_modified()
