@@ -32,6 +32,20 @@ class Server(Base):
 
     def __init__(self, role, ip, port, uname, watch_dirs, clients):
         super(Server, self).__init__(role, ip, port, uname, watch_dirs)
+        self.funcs = {
+            'ack_push_file': self.ack_push_file,
+            'mark_presence': self.mark_presence,
+            'req_push_file': self.req_push_file,
+            'sync_files': self.sync_files,
+            'add_client_keys': self.add_client_keys,
+            'collision_check': self.collision_check,
+            'find_available_clients': self.find_available_clients,
+            'get_authfile': self.get_authfile,
+            'get_client_public_key': sxmlr.get_client_public_key,
+            'find_available': sxmlr.find_available,
+            'get_public_key': self.get_public_key,
+
+        }
         self.clients = clients
 
     def req_push_file(self, filedata, source_uname, source_ip, source_port):
@@ -122,6 +136,18 @@ class Server(Base):
                 fp.write(client_pub_key + '\n')
                 logger.debug("Added public key for client %s", client.uname)
 
+    def get_public_key(self):
+        """Method to get the public key."""
+        try:
+            with open(os.path.join("/home", self.username, ".ssh/id_rsa.pub"), 'r') as key_file:
+                public_key = key_file.read().strip()
+            return public_key
+        except FileNotFoundError:
+            logger.error("Public key file not found.")
+            return None
+        except Exception as e:
+            logger.error("Error reading public key file: %s", e)
+            return None
     def activate(self):
         """Activate the server node."""
         super(Server, self).activate()

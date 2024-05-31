@@ -22,6 +22,8 @@ class PTmp(ProcessEvent):
     def process_IN_CREATE(self, event):
         filename = os.path.join(event.path, event.name)
         if filename not in self.pulled_files:
+            # Add a delay before adding the file to the mfiles set
+            time.sleep(5)
             self.mfiles.add(filename, time.time())
             logger.info("Created file: %s", filename)
         else:
@@ -46,7 +48,7 @@ class PTmp(ProcessEvent):
                     file_exists = True
                     last_modified_time = filedata.time
                     break
-            if file_exists and current_time - last_modified_time > 5:
+            if file_exists and current_time - last_modified_time > 150:
                 self.mfiles.add(filename, current_time)
                 logger.info("Modified file: %s", filename)
         else:
@@ -62,6 +64,7 @@ class Client(Base):
         self.rfiles = set()
         self.pulled_files = set()
         self.server_available = True
+
 
     def push_file(self, filename, dest_file, dest_uname, dest_ip):
         proc = subprocess.Popen(['scp', filename, f"{dest_uname}@{dest_ip}:{dest_file}"])

@@ -4,24 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="10d2ee52-a753-457f-9640-e0ad2b06099b" name="Changes" comment="changed">
-      <change afterPath="$PROJECT_DIR$/client_test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/monitor.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/parent.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_30_2024_2_50_AM_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_30_2024_2_50_AM_[Changes]1/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_30_2024_2_50_AM__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_30_2024_2_50_AM__Changes_1.xml" beforeDir="false" />
+    <list default="true" id="10d2ee52-a753-457f-9640-e0ad2b06099b" name="Changes" comment="changed all the stuff &#10;&#10;&#10;Can reroll if doesnt work">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Monitor.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Parent.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server.py" beforeDir="false" afterPath="$PROJECT_DIR$/server.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client.py" beforeDir="false" afterPath="$PROJECT_DIR$/client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/persistence.py" beforeDir="false" afterPath="$PROJECT_DIR$/persistence.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parent.py" beforeDir="false" afterPath="$PROJECT_DIR$/parent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/server.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sxmlr.py" beforeDir="false" afterPath="$PROJECT_DIR$/sxmlr.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/syncit.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/syncit.cfg" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,7 +71,7 @@
     &quot;Python.stop main.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;test/yead&quot;,
     &quot;last_opened_file_path&quot;: &quot;/home/yead/programming/projects/TSYnc/tmp&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -232,7 +220,8 @@
       <workItem from="1714310277340" duration="3292000" />
       <workItem from="1714406015285" duration="1490000" />
       <workItem from="1714440398087" duration="4486000" />
-      <workItem from="1717148466512" duration="7581000" />
+      <workItem from="1717148466512" duration="11636000" />
+      <workItem from="1717176917669" duration="4734000" />
     </task>
     <task id="LOCAL-00001" summary="testing out pycharm">
       <option name="closed" value="true" />
@@ -282,7 +271,15 @@
       <option name="project" value="LOCAL" />
       <updated>1714443621086</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="changed all the stuff &#10;&#10;&#10;Can reroll if doesnt work">
+      <option name="closed" value="true" />
+      <created>1717156921805</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1717156921806</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -306,7 +303,8 @@
     <MESSAGE value="Chaged the directory sturcture and added and completed sxmlr.py to handle the xmlrpc requests and connections." />
     <MESSAGE value="Changed in sxmlr.py" />
     <MESSAGE value="changed" />
-    <option name="LAST_COMMIT_MESSAGE" value="changed" />
+    <MESSAGE value="changed all the stuff &#10;&#10;&#10;Can reroll if doesnt work" />
+    <option name="LAST_COMMIT_MESSAGE" value="changed all the stuff &#10;&#10;&#10;Can reroll if doesnt work" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/TSYnc$main.coverage" NAME="main Coverage Results" MODIFIED="1712740605461" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

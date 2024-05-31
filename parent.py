@@ -13,6 +13,8 @@ class FunctionHandler(SimpleXMLRPCRequestHandler):
     """Custom request handler to return a requested function call from the server side."""
     def _dispatch(self, method, params):
         try:
+            logger.debug("Server type: %s", type(self.server))
+            logger.debug("Server funcs: %s", self.server.funcs)
             return self.server.funcs[method](*params)
         except:
             traceback.print_exc()
@@ -35,7 +37,13 @@ class Base:
 
     def register_methods(self):
         """Register XML-RPC methods."""
-        self.server.funcs['req_push_file'] = self.req_push_file  # Register req_push_file method
+        self.server.funcs['req_push_file'] = self.req_push_file
+        self.server.funcs['ack_push_file'] = self.ack_push_file  # Add this line
+
+    def ack_push_file(self, *args):
+        """Acknowledge the successful push of a file."""
+        logger.debug("Acknowledge push file request: %s", args)
+        return True
 
     def req_push_file(self, filename, dest_uname, dest_ip):
         """Handle the req_push_file XML-RPC request."""
