@@ -38,7 +38,9 @@ class Base:
     def register_methods(self):
         """Register XML-RPC methods."""
         self.server.funcs['req_push_file'] = self.req_push_file
-        self.server.funcs['ack_push_file'] = self.ack_push_file  # Add this line
+        self.server.funcs['ack_push_file'] = self.ack_push_file
+        self.server.funcs['get_public_key'] = self.get_public_key
+        self.server.funcs['pull_file'] = self.pull_file
 
     def ack_push_file(self, *args):
         """Acknowledge the successful push of a file."""
@@ -71,6 +73,33 @@ class Base:
             logger.debug("SCP returned status: %s", return_status)
         except Exception as e:
             logger.error("Error pushing file: %s", e)
+
+    def get_public_key(self, *args):
+        """Return public key of this client."""
+        pubkey_dirname = os.path.join("/home", self.username, ".ssh")
+        logger.debug("Public key directory %s", pubkey_dirname)
+
+        pubkey = None
+        for root, _, filenames in os.walk(pubkey_dirname):
+            for filename in filenames:
+                if filename.endswith('.pub'):
+                    pubkey_filepath = os.path.join(root, filename)
+                    logger.debug("Public key file %s", pubkey_filepath)
+                    with open(pubkey_filepath, 'r') as pubkey_file:
+                        pubkey = pubkey_file.readline().strip()
+                        logger.debug("Public key %s", pubkey)
+                    break
+            if pubkey:
+                break
+
+        return pubkey
+
+    def pull_file(self, filename, source_uname, source_ip):
+        """Pull file 'filename' from the source."""
+        my_file = Base.get_dest_path(filename, self.username)
+        proc = subprocess.Popen(['scp', f"{source_uname}@{source_ip}:{filename}", my_file])
+        return_status = proc.wait()
+        logger.debug("SCP returned status: %s", return_status)
 
     def dir_maker(self):
         """Create directories if they do not exist."""

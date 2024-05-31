@@ -65,6 +65,11 @@ class Client(Base):
         self.pulled_files = set()
         self.server_available = True
 
+        # Ensure client-specific methods are registered if not in Base
+        self.server.funcs.update({
+            'get_public_key': self.get_public_key,
+            'pull_file': self.pull_file
+        })
 
     def push_file(self, filename, dest_file, dest_uname, dest_ip):
         proc = subprocess.Popen(['scp', filename, f"{dest_uname}@{dest_ip}:{dest_file}"])
@@ -138,7 +143,6 @@ class Client(Base):
         """Keep a watch on files present in sync directories."""
         try:
             wm = WatchManager()
-            # Set mask for the events to be monitored
             mask = EventsCodes.FLAG_COLLECTIONS['OP_FLAGS']['IN_CREATE'] | \
                    EventsCodes.FLAG_COLLECTIONS['OP_FLAGS']['IN_DELETE'] | \
                    EventsCodes.FLAG_COLLECTIONS['OP_FLAGS']['IN_MODIFY']

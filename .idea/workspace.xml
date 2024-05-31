@@ -4,12 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="10d2ee52-a753-457f-9640-e0ad2b06099b" name="Changes" comment="changed all the stuff &#10;&#10;&#10;Can reroll if doesnt work">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="10d2ee52-a753-457f-9640-e0ad2b06099b" name="Changes" comment="fixed some of the server problem">
       <change beforePath="$PROJECT_DIR$/client.py" beforeDir="false" afterPath="$PROJECT_DIR$/client.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/parent.py" beforeDir="false" afterPath="$PROJECT_DIR$/parent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sxmlr.py" beforeDir="false" afterPath="$PROJECT_DIR$/sxmlr.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -221,7 +218,7 @@
       <workItem from="1714406015285" duration="1490000" />
       <workItem from="1714440398087" duration="4486000" />
       <workItem from="1717148466512" duration="11636000" />
-      <workItem from="1717176917669" duration="4734000" />
+      <workItem from="1717176917669" duration="5783000" />
     </task>
     <task id="LOCAL-00001" summary="testing out pycharm">
       <option name="closed" value="true" />
@@ -279,7 +276,15 @@
       <option name="project" value="LOCAL" />
       <updated>1717156921806</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="fixed some of the server problem">
+      <option name="closed" value="true" />
+      <created>1717181928546</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1717181928546</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -304,7 +309,8 @@
     <MESSAGE value="Changed in sxmlr.py" />
     <MESSAGE value="changed" />
     <MESSAGE value="changed all the stuff &#10;&#10;&#10;Can reroll if doesnt work" />
-    <option name="LAST_COMMIT_MESSAGE" value="changed all the stuff &#10;&#10;&#10;Can reroll if doesnt work" />
+    <MESSAGE value="fixed some of the server problem" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed some of the server problem" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/TSYnc$main.coverage" NAME="main Coverage Results" MODIFIED="1712740605461" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
