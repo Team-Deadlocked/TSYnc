@@ -3,7 +3,7 @@ import pickle
 import errno
 import time
 
-__author__ = 'dushyant'
+
 
 class FileData(object):
 
