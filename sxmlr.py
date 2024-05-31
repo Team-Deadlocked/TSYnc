@@ -6,9 +6,9 @@ import xmlrpc.client
 logger = logging.getLogger('Tsync')
 logger.setLevel(logging.DEBUG)
 def make_safer(fn):
-    def wrapped(*args, **kwargs):
+    def wrapped(*args):
         try:
-            result = fn(*args, **kwargs)
+            result = fn(*args)
             if result is None:
                 result = "Success"
             return result
@@ -23,34 +23,34 @@ def make_safer(fn):
 
 @make_safer
 def pull_file(dest_ip, dest_port, filename, source_uname, source_ip):
-    connect = xmlrpc.client.ServerProxy("http://%s:%d" % (source_ip, dest_port),allow_none=True)
+    connect = xmlrpc.client.ServerProxy("http://%s:%s/" % (dest_ip, dest_port),allow_none=True)
     connect.pull_file(filename, source_uname, source_ip)
 
 @make_safer
-def req_push_file(dest_ip, dest_port, filename, source_uname, source_ip):
-    connect = xmlrpc.client.ServerProxy("http://%s:%d" % (dest_ip, dest_port),allow_none=True)
-    return connect.req_push_file(filename, source_uname, source_ip)
+def req_push_file(dest_ip, dest_port, filename, source_uname, source_ip, source_port):
+    connect = xmlrpc.client.ServerProxy("http://%s:%s/" % (dest_ip, dest_port),allow_none=True)
+    return connect.req_push_file(filename, source_uname, source_ip, source_port)
 
 @make_safer
-def ack_push_file(dest_ip, dest_port, filename, source_uname, source_ip):
-    connect = xmlrpc.client.ServerProxy("http://%s:%d" % (dest_ip, dest_port),allow_none=True)
-    return connect.ack_push_file(filename, source_uname, source_ip)
+def ack_push_file(dest_ip, dest_port, filename, source_uname, source_ip, source_port):
+    connect = xmlrpc.client.ServerProxy("http://%s:%s/" % (dest_ip, dest_port),allow_none=True)
+    return connect.ack_push_file(filename, source_uname, source_ip, source_port)
 
 @make_safer
 def mark_presence(dest_ip, dest_port, source_ip, source_port):
-    connect = xmlrpc.client.ServerProxy("http://%s:%d" % (dest_ip, dest_port),allow_none=True)
+    connect = xmlrpc.client.ServerProxy("http://%s:%s/" % (dest_ip, dest_port),allow_none=True)
     logger.debug("RPC call to mark available")
     logger.debug("Available methods on RPC server: %s", connect.system.listMethods())
     connect.mark_presence(source_ip, source_port)
 
 @make_safer
 def get_client_public_key(dest_ip, dest_port):
-    connect = xmlrpc.client.ServerProxy("http://%s:%d" % (dest_ip, dest_port),allow_none=True)
+    connect = xmlrpc.client.ServerProxy("http://%s:%s/" % (dest_ip, dest_port),allow_none=True)
     return connect.get_public_key()
 
 @make_safer
 def find_available(dest_ip, dest_port):
-    connect = xmlrpc.client.ServerProxy("http://%s:%d" % (dest_ip, dest_port),allow_none=True)
+    connect = xmlrpc.client.ServerProxy("http://%s:%s/" % (dest_ip, dest_port),allow_none=True)
     try:
         connect.system.listMethods()
         return True

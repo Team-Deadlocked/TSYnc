@@ -7,20 +7,23 @@ from Parent import Base
 import subprocess
 import os
 import sxmlr
-from persistance import PersistentSet
+from persistence import FileData, FilesPersistentSet, PersistentSet
 
-logger=logging.getLogger("TSYnc")
+logger = logging.getLogger("TSYnc")
 logger.setLevel(logging.DEBUG)
 
+
 def is_collision_file(filename):
-    backup_pattern = re.compile(r"\.backup\.[1-9]+\.")
-    if re.search(backup_pattern, filename) is None:
+    backup_file_pattern = re.compile(r"\.backup\.[1-9]+\.")
+    if re.search(backup_file_pattern, filename) is None:
         return False
     else:
         return True
 
+
 class ClientData(object):
     """Data corresponding to each client residing in server object"""
+
     def __init__(self, client_uname, client_ip, client_port):
         self.available = False
         self.mfiles = PersistentSet('server-%s.pkl'%(client_uname))
@@ -28,59 +31,63 @@ class ClientData(object):
         self.ip = client_ip
         self.port = client_port
 
+
 class Server(Base):
-    def __init__(self, role,ip,port,uname,dirs,clients):
-        super(Server,self).__init__(role,ip,port,uname,dirs)
-        self.clients=clients
+    def __init__(self, role, ip, port, uname, watch_dirs, clients):
+        super(Server, self).__init__(role, ip, port, uname, watch_dirs)
+        self.clients = clients
 
-    def req_push_file(self, file, source_uname, source_ip, source_port):
-        logger.debug("%s %s",file['name'],list(file.keys()))
-        path = Base.get_path(file['name'], self.username)
-
-        if self.collision(file):
-            #file_name = "%s.backup.%s.%s.%s:%s"%(path,file['time'],source_uname,source_ip,source_port)
-            pass
+    def req_push_file(self, filedata, source_uname, source_ip, source_port):
+        logger.debug("server filedata %s %s",filedata['name'], list(filedata.keys()))
+        my_file = Base.get_dest_path(filedata['name'], self.username)
+        #check if there is a conflict
+        if self.collision_check(filedata):
+            server_filename = "%s.backup.%s.%s.%s:%s"%(my_file, filedata['time'], source_uname, source_ip, source_port)
         else:
-            file_name = path
+            server_filename = my_file
 
-        logger.debug("Path is given as %s",file_name)
-        return file_name
-
-    def file_notify(self,filename, source_uname, source_ip, source_port):
-        if is_collision_file(filename):
+        logger.debug("server filename %s returned for file %s", server_filename, filedata['name'])
+        return server_filename
+    def ack_push_file(self, server_filename, source_uname, source_ip, source_port):
+        if is_collision_file(server_filename):
             return
+
         for client in self.clients:
-            if(client.ip,client.port)==(source_ip,source_port):
-                continue #no need to notify the one updating itself
+            logger.debug("tuple %s : %s", (client.ip, client.port), (source_ip, source_port))
+            if (client.ip, client.port) == (source_ip, source_port):
+                continue
             else:
-                client.mfiles.add(filename)
-                logger.debug("Client modified")
+                client.mfiles.add(server_filename)
+                logger.debug("add file to modified list")
 
     def collision_check(self, filedata):
-        file=Base.get_path(filedata['name'],self.username)
+        my_file = Base.get_dest_path(filedata['name'], self.username)
         try:
-            is_collision = os.path.getmtime(file)>filedata['time']
+           collision_exist = os.path.getmtime(my_file) > filedata['time']
+           logger.debug("collision check: server time %s  client time %s", os.path.getmtime(my_file), filedata['time'])
         except OSError as e:
             if e.errno == errno.ENOENT:
-                is_collison= False
+                collision_exist = False
             else:
                 raise
-        logger.debug("Result of collision: %s",is_collision)
-        return is_collision
+        logger.debug("collision check for file %s result %s", my_file, collision_exist)
+        return collision_exist
 
     def sync_files(self):
         while True:
             try:
                 time.sleep(10)
                 for client in self.clients:
+                    logger.debug( "list of files for client %s, availability %s",client.mfiles.list(), client.available)
                     if client.available:
                         for file in client.mfiles.list():
-                            rpc_status = sxmlr.pull_file(client.ip,client.port,file,self.username,self.ip)
+                            rpc_status = sxmlr.pull_file(client.ip, client.port, file, self.username, self.ip)
 
                             if rpc_status is None:
-                                client.available=False
+                                client.available = False
                                 continue
                             client.mfiles.remove(file)
+                            logger.debug("actual sync")
             except KeyboardInterrupt:
                 break
 
@@ -95,7 +102,7 @@ class Server(Base):
 
     def find_available_clients(self):
         for client in self.clients:
-            client.available = sxmlr.find_available(client.ip,client.port)
+            client.available = sxmlr.find_available(client.ip, client.port)
             self.add_client_keys(client)
 
     def get_authfile(self):
@@ -115,5 +122,5 @@ class Server(Base):
 
     def activate(self):
         """ Activate Server Node """
-        super(Server, self).commence()
+        super(Server, self).activate()
         self.find_available_clients()
