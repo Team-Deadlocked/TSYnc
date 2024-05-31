@@ -4,11 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="10d2ee52-a753-457f-9640-e0ad2b06099b" name="Changes" comment="Changed in sxmlr.py">
+    <list default="true" id="10d2ee52-a753-457f-9640-e0ad2b06099b" name="Changes" comment="changed">
+      <change afterPath="$PROJECT_DIR$/client_test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/monitor.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/parent.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server_test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_30_2024_2_50_AM_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_30_2024_2_50_AM_[Changes]1/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_30_2024_2_50_AM__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_30_2024_2_50_AM__Changes_1.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Monitor.py" beforeDir="false" afterPath="$PROJECT_DIR$/Monitor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Monitor.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Parent.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server.py" beforeDir="false" afterPath="$PROJECT_DIR$/server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client.py" beforeDir="false" afterPath="$PROJECT_DIR$/client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/persistence.py" beforeDir="false" afterPath="$PROJECT_DIR$/persistence.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sxmlr.py" beforeDir="false" afterPath="$PROJECT_DIR$/sxmlr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/syncit.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/syncit.cfg" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,7 +63,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Team-Deadlocked/TSYnc.git&quot;,
-    &quot;accountId&quot;: &quot;bc1f8ebd-5e26-4a43-a27c-9d01d1495e7e&quot;
+    &quot;accountId&quot;: &quot;8cbc177c-ab8b-42a3-b3b4-b7337ab26b0d&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
@@ -62,25 +75,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.main.executor": "Run",
-    "Python.server.executor": "Run",
-    "Python.start main.executor": "Run",
-    "Python.stop main.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "feature/monitor__database/shahir",
-    "last_opened_file_path": "/home/yead/programming/projects/TSYnc/tmp",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;Python.server.executor&quot;: &quot;Run&quot;,
+    &quot;Python.start main.executor&quot;: &quot;Run&quot;,
+    &quot;Python.stop main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/yead/programming/projects/TSYnc/tmp&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/testing" />
@@ -196,8 +209,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-PY-241.14494.241" />
-        <option value="bundled-python-sdk-0509580d9d50-28c9f5db9ffe-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.14494.241" />
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-PY-241.17011.127" />
+        <option value="bundled-python-sdk-48aec45f0201-7e9c3bbb6e34-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.17011.127" />
       </set>
     </attachedChunks>
   </component>
@@ -218,6 +231,8 @@
       <workItem from="1714292739319" duration="3419000" />
       <workItem from="1714310277340" duration="3292000" />
       <workItem from="1714406015285" duration="1490000" />
+      <workItem from="1714440398087" duration="4486000" />
+      <workItem from="1717148466512" duration="7581000" />
     </task>
     <task id="LOCAL-00001" summary="testing out pycharm">
       <option name="closed" value="true" />
@@ -259,7 +274,15 @@
       <option name="project" value="LOCAL" />
       <updated>1714311140327</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="changed">
+      <option name="closed" value="true" />
+      <created>1714443621086</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1714443621086</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -282,7 +305,8 @@
     <MESSAGE value="created a deamon to continiously send request to the server  in the background. Works as expected and added logic for both windows and linux" />
     <MESSAGE value="Chaged the directory sturcture and added and completed sxmlr.py to handle the xmlrpc requests and connections." />
     <MESSAGE value="Changed in sxmlr.py" />
-    <option name="LAST_COMMIT_MESSAGE" value="Changed in sxmlr.py" />
+    <MESSAGE value="changed" />
+    <option name="LAST_COMMIT_MESSAGE" value="changed" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/TSYnc$main.coverage" NAME="main Coverage Results" MODIFIED="1712740605461" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
