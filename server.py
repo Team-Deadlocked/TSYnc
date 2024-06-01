@@ -53,10 +53,11 @@ class Server(Base):
         logger.debug("server filedata %s %s", filedata['name'], list(filedata.keys()))
         my_file = Base.get_dest_path(filedata['name'], self.username)
 
-        if self.collision_check(filedata):
-            server_filename = f"{my_file}.backup.{filedata['time']}.{source_uname}.{source_ip}:{source_port}"
-        else:
-            server_filename = my_file
+       # if self.collision_check(filedata):
+           # server_filename = f"{my_file}.backup.{filedata['time']}.{source_uname}.{source_ip}:{source_port}"
+        #else:
+        
+        server_filename = my_file
 
         logger.debug("server filename %s returned for file %s", server_filename, filedata['name'])
         return server_filename
