@@ -103,13 +103,32 @@ class Base:
 
     def dir_maker(self):
         """Create directories if they do not exist."""
+        base_dir = f"/home/{self.username}/.tsync"
+        if not os.path.isdir(base_dir):
+            try:
+                os.makedirs(base_dir)
+                logger.info("Created directory: %s", base_dir)
+            except Exception as e:
+                logger.error("Error creating directory %s: %s", base_dir, e)
+
         for dir in self.watch_dirs:
+            # Create the original directory if it doesn't exist
             if not os.path.isdir(dir):
                 try:
                     os.makedirs(dir)
                     logger.info("Created directory: %s", dir)
                 except Exception as e:
                     logger.error("Error creating directory %s: %s", dir, e)
+
+            # Create a corresponding directory inside .tsync
+            relative_dir = os.path.relpath(dir, start='/home/' + self.username)
+            tsync_dir = os.path.join(base_dir, relative_dir)
+            if not os.path.isdir(tsync_dir):
+                try:
+                    os.makedirs(tsync_dir)
+                    logger.info("Created directory: %s", tsync_dir)
+                except Exception as e:
+                    logger.error("Error creating directory %s: %s", tsync_dir, e)
 
     def begin(self):
         """Start the XML-RPC server."""
