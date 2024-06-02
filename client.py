@@ -95,7 +95,7 @@ class Client(Base):
         self.pulled_files.add(my_file)
         proc = subprocess.Popen(['scp', f"{source_uname}@{source_ip}:{filename}", my_file])
         return_status = proc.wait()
-        logger.debug("logging from pull_file of client on filename", my_file)
+        logger.debug("logging from pull_file of client on filename %s", my_file)
         logger.debug("Returned status %s", return_status)
 
     def get_public_key(self):
