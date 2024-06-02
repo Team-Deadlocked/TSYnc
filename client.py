@@ -83,15 +83,15 @@ class Client(Base):
             'push_file': self.push_file
         })
 
-    # def push_file(self, filename, dest_file, dest_uname, dest_ip):
-    #     proc = subprocess.Popen(['scp', filename, f"{dest_uname}@{dest_ip}:{dest_file}"])
-    #     push_status = proc.wait()
-    #     logger.debug("Returned status %s", push_status)
-    #     return push_status
+    def push_file(self, filename, dest_file, dest_uname, dest_ip):
+        proc = subprocess.Popen(['scp', filename, f"{dest_uname}@{dest_ip}:{dest_file}"])
+        push_status = proc.wait()
+        logger.debug("Returned status %s", push_status)
+        return push_status
 
     def pull_file(self, filename, source_uname, source_ip):
         """Pull file 'filename' from the source."""
-        my_file = Base.get_dest_path(filename, self.username)
+        my_file = Base.get_dest_path(filename, self.username, self.role)
         self.pulled_files.add(my_file)
         proc = subprocess.Popen(['scp', f"{source_uname}@{source_ip}:{filename}", my_file])
         return_status = proc.wait()

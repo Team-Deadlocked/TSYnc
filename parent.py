@@ -50,24 +50,32 @@ class Base:
     def req_push_file(self, filename, dest_uname, dest_ip):
         """Handle the req_push_file XML-RPC request."""
         logger.debug("Received request to push file: %s to %s@%s", filename, dest_uname, dest_ip)
-        self.push_file(filename, dest_uname, dest_ip)
+
+        # Modify the destination path to include .tsync
+        dest_path = os.path.join("/home", dest_uname, ".tsync", filename.lstrip('/'))
+
+        self.push_file(filename, dest_path, dest_ip)
         return True
 
     @staticmethod
-    def get_dest_path(filename, dest_uname):
+    def get_dest_path(filename, dest_uname, role):
         """Get the destination path for a file, replacing the username in the path."""
         user_dir_pattern = re.compile("/home/[^ ]*?/")
         destpath = None
         if re.search(user_dir_pattern, filename):
-            destpath = user_dir_pattern.sub(f"/home/{dest_uname}/", filename)
+            if role == 'server':
+                destpath = user_dir_pattern.sub(f"/home/{dest_uname}/.tsync/", filename)
+            else:  # role == 'client'
+                destpath = user_dir_pattern.sub(f"/home/{dest_uname}/", filename)
         logger.debug("Destination path: %s", destpath)
         return destpath
 
+
     @staticmethod
-    def push_file(filename, dest_uname, dest_ip):
+    def push_file(filename, dest_uname, dest_ip, role):
         """Push a file to the destination user and IP using scp."""
         try:
-            dest_path = Base.get_dest_path(filename, dest_uname)
+            dest_path = Base.get_dest_path(filename, dest_uname, role)
             proc = subprocess.Popen(['scp', filename, f"{dest_uname}@{dest_ip}:{dest_path}"])
             return_status = proc.wait()
             logger.debug("SCP returned status: %s", return_status)
@@ -96,7 +104,7 @@ class Base:
 
     def pull_file(self, filename, source_uname, source_ip):
         """Pull file 'filename' from the source."""
-        my_file = Base.get_dest_path(filename, self.username)
+        my_file = Base.get_dest_path(filename, self.username, self.role)
         proc = subprocess.Popen(['scp', f"{source_uname}@{source_ip}:{filename}", my_file])
         return_status = proc.wait()
         logger.debug("SCP returned status: %s", return_status)
