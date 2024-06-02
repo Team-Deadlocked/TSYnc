@@ -8,28 +8,33 @@ logger = logging.getLogger('syncIt')
 logger.setLevel(logging.DEBUG)
 
 def make_safer(fn):
-    """Decorator to make XML-RPC function calls safer by handling socket errors."""
     def wrapped(*args):
-        try:
-            result = fn(*args)
-            if result is None:
-                result = "Success"
-            return result
-        except socket.error as e:
-            if e.errno in (errno.ECONNREFUSED, errno.EHOSTUNREACH):
-                logger.critical("Connection error while calling RPC function '%s': %s", fn.__name__, str(e))
-                logger.critical("Failed to connect to RPC server at %s:%s", args[0], args[1])
+        retries = 3
+        for attempt in range(retries):
+            try:
+                result = fn(*args)
+                if result is None:
+                    result = "Success"
+                return result
+            except socket.error as e:
+                if e.errno in (errno.ECONNREFUSED, errno.EHOSTUNREACH):
+                    logger.critical("Connection error while calling RPC function '%s': %s", fn.__name__, str(e))
+                    logger.critical("Failed to connect to RPC server at %s:%s (Attempt %d/%d)", args[0], args[1], attempt+1, retries)
+                    time.sleep(2)  # wait before retrying
+                    continue
+                else:
+                    raise
+            except Exception as e:
+                logger.error("Unexpected error while calling RPC function '%s': %s", fn.__name__, str(e))
                 return None
-            else:
-                raise
-        except Exception as e:
-            logger.error("Unexpected error while calling RPC function '%s': %s", fn.__name__, str(e))
-            return None
+        return None
     return wrapped
+
 
 @make_safer
 def pull_file(dest_ip, dest_port, filename, source_uname, source_ip):
     connect = xmlrpc.client.ServerProxy(f"http://{dest_ip}:{dest_port}/", allow_none=True)
+    logger.log("Logging from pull file of sxmlr on filename", filename, "source ip : ", source_ip, " destionaion ip:", dest_ip)
     return connect.pull_file(filename, source_uname, source_ip)
 
 @make_safer

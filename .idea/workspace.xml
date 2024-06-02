@@ -5,8 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="10d2ee52-a753-457f-9640-e0ad2b06099b" name="Changes" comment="fixed some of the server problem">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client.py" beforeDir="false" afterPath="$PROJECT_DIR$/client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/parent.py" beforeDir="false" afterPath="$PROJECT_DIR$/parent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sxmlr.py" beforeDir="false" afterPath="$PROJECT_DIR$/sxmlr.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,7 +49,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Team-Deadlocked/TSYnc.git&quot;,
-    &quot;accountId&quot;: &quot;8cbc177c-ab8b-42a3-b3b4-b7337ab26b0d&quot;
+    &quot;accountId&quot;: &quot;1d407bdd-55aa-452e-b7b2-e54b6c8bd6e1&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
@@ -219,6 +220,9 @@
       <workItem from="1714440398087" duration="4486000" />
       <workItem from="1717148466512" duration="11636000" />
       <workItem from="1717176917669" duration="5783000" />
+      <workItem from="1717309009883" duration="344000" />
+      <workItem from="1717320764073" duration="709000" />
+      <workItem from="1717321798466" duration="835000" />
     </task>
     <task id="LOCAL-00001" summary="testing out pycharm">
       <option name="closed" value="true" />
