@@ -40,7 +40,7 @@ class Base:
         self.server.funcs['req_push_file'] = self.req_push_file
         self.server.funcs['ack_push_file'] = self.ack_push_file
         self.server.funcs['get_public_key'] = self.get_public_key
-        self.server.funcs['pull_file'] = self.pull_file
+        #self.server.funcs['pull_file'] = self.pull_file
 
     def ack_push_file(self, *args):
         """Acknowledge the successful push of a file."""
@@ -78,7 +78,7 @@ class Base:
             dest_path = Base.get_dest_path(filename, dest_uname, role)
             proc = subprocess.Popen(['scp', filename, f"{dest_uname}@{dest_ip}:{dest_path}"])
             return_status = proc.wait()
-            logger.debug("SCP returned status: %s", return_status)
+            logger.debug("SCP returned status in push_file of base class: %s", return_status)
         except Exception as e:
             logger.error("Error pushing file: %s", e)
 
@@ -102,12 +102,12 @@ class Base:
 
         return pubkey
 
-    def pull_file(self, filename, source_uname, source_ip):
-        """Pull file 'filename' from the source."""
-        my_file = Base.get_dest_path(filename, self.username, self.role)
-        proc = subprocess.Popen(['scp', f"{source_uname}@{source_ip}:{filename}", my_file])
-        return_status = proc.wait()
-        logger.debug("SCP returned status: %s", return_status)
+    # def pull_file(self, filename, source_uname, source_ip , role):
+    #     """Pull file 'filename' from the source."""
+    #     my_file = Base.get_dest_path(filename, self.username, self.role)
+    #     proc = subprocess.Popen(['scp', f"{source_uname}@{source_ip}:{filename}", my_file])
+    #     return_status = proc.wait()
+    #     logger.debug("SCP returned status: %s", return_status)
 
     def dir_maker(self):
         """Create directories if they do not exist."""

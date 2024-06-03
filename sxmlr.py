@@ -35,7 +35,7 @@ def make_safer(fn):
 @make_safer
 def pull_file(dest_ip, dest_port, filename, source_uname, source_ip):
     connect = xmlrpc.client.ServerProxy(f"http://{dest_ip}:{dest_port}/", allow_none=True)
-    logger.log("Logging from pull file of sxmlr on filename", filename, "source ip : ", source_ip, " destionaion ip:", dest_ip)
+    logger.info("Logging from pull file of sxmlr on filename %s, source ip : %s, destination ip: %s", filename, source_ip, dest_ip)
     return connect.pull_file(filename, source_uname, source_ip)
 
 @make_safer

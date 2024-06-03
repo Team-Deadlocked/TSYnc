@@ -1,4 +1,5 @@
 import logging
+import shutil
 import re
 import threading
 import time
@@ -71,7 +72,7 @@ class Server(Base):
         for client in self.clients:
             if (client.ip, client.port) == (source_ip, source_port):
                 continue
-            client.mfiles.add(server_filename)
+            client.mfiles.add(server_filename)  # the file is in the server's directory ./.tsync
             logger.debug("File added to modified list for client %s", client.uname)
 
     def collision_check(self, filedata):

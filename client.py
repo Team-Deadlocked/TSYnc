@@ -91,7 +91,9 @@ class Client(Base):
 
     def pull_file(self, filename, source_uname, source_ip):
         """Pull file 'filename' from the source."""
-        my_file = Base.get_dest_path(filename, self.username, self.role)
+        my_file = filename.replace("/.tsync", "")
+        my_file = Base.get_dest_path(my_file, self.username, self.role)
+        print("my file is ", my_file)
         self.pulled_files.add(my_file)
         proc = subprocess.Popen(['scp', f"{source_uname}@{source_ip}:{filename}", my_file])
         return_status = proc.wait()
