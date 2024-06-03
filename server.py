@@ -66,8 +66,8 @@ class Server(Base):
 
     def ack_push_file(self, server_filename, source_uname, source_ip, source_port):
         """Acknowledge the successful push of a file."""
-        if is_collision_file(server_filename):
-            return
+        # if is_collision_file(server_filename):
+        #     return
 
         for client in self.clients:
             if (client.ip, client.port) == (source_ip, source_port):
