@@ -5,8 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="10d2ee52-a753-457f-9640-e0ad2b06099b" name="Changes" comment="fixed some of the server problem">
+      <change beforePath="$PROJECT_DIR$/.idea/TSYnc.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/TSYnc.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client.py" beforeDir="false" afterPath="$PROJECT_DIR$/client.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/parent.py" beforeDir="false" afterPath="$PROJECT_DIR$/parent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sxmlr.py" beforeDir="false" afterPath="$PROJECT_DIR$/sxmlr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/syncit.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/syncit.cfg" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,7 +40,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="test/yead" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -48,7 +54,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Team-Deadlocked/TSYnc.git&quot;,
-    &quot;accountId&quot;: &quot;8cbc177c-ab8b-42a3-b3b4-b7337ab26b0d&quot;
+    &quot;accountId&quot;: &quot;1d407bdd-55aa-452e-b7b2-e54b6c8bd6e1&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
@@ -68,7 +74,7 @@
     &quot;Python.stop main.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;test/yead&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;test-the-file-goes-to-.tsync/yead&quot;,
     &quot;last_opened_file_path&quot;: &quot;/home/yead/programming/projects/TSYnc/tmp&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -219,6 +225,11 @@
       <workItem from="1714440398087" duration="4486000" />
       <workItem from="1717148466512" duration="11636000" />
       <workItem from="1717176917669" duration="5783000" />
+      <workItem from="1717309009883" duration="344000" />
+      <workItem from="1717320764073" duration="709000" />
+      <workItem from="1717321798466" duration="835000" />
+      <workItem from="1717341120308" duration="21981000" />
+      <workItem from="1717432065675" duration="2280000" />
     </task>
     <task id="LOCAL-00001" summary="testing out pycharm">
       <option name="closed" value="true" />
@@ -284,7 +295,15 @@
       <option name="project" value="LOCAL" />
       <updated>1717181928546</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="fixed some of the server problem">
+      <option name="closed" value="true" />
+      <created>1717342619095</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1717342619095</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

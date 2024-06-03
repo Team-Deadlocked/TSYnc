@@ -11,6 +11,7 @@ from persistence import FileData, FilesPersistentSet
 logger = logging.getLogger('syncIt')
 logger.setLevel(logging.DEBUG)
 
+
 class PTmp(ProcessEvent):
     """Find which files to sync."""
 
@@ -40,19 +41,29 @@ class PTmp(ProcessEvent):
 
     def process_IN_MODIFY(self, event):
         filename = os.path.join(event.path, event.name)
-        current_time = time.time()
         if filename not in self.pulled_files:
-            file_exists = False
-            for filedata in self.mfiles.list():
-                if filedata.name == filename:
-                    file_exists = True
-                    last_modified_time = filedata.time
-                    break
-            if file_exists and current_time - last_modified_time > 150:
-                self.mfiles.add(filename, current_time)
-                logger.info("Modified file: %s", filename)
+            time.sleep(5)
+            self.mfiles.add(filename, time.time())
+            logger.info("Modified file: %s", filename)
         else:
             self.pulled_files.remove(filename)
+
+    # def process_IN_MODIFY(self, event):
+    #     filename = os.path.join(event.path, event.name)
+    #     current_time = time.time()
+    #     if filename not in self.pulled_files:
+    #         file_exists = False
+    #         for filedata in self.mfiles.list():
+    #             if filedata.name == filename:
+    #                 file_exists = True
+    #                 last_modified_time = filedata.time
+    #                 break
+    #         if file_exists and current_time - last_modified_time > 150:
+    #             self.mfiles.add(filename, current_time)
+    #             logger.info("Modified file: %s", filename)
+    #     else:
+    #         self.pulled_files.remove(filename)
+
 
 class Client(Base):
     """Client class."""
@@ -68,7 +79,8 @@ class Client(Base):
         # Ensure client-specific methods are registered if not in Base
         self.server.funcs.update({
             'get_public_key': self.get_public_key,
-            'pull_file': self.pull_file
+            'pull_file': self.pull_file,
+            'push_file': self.push_file
         })
 
     def push_file(self, filename, dest_file, dest_uname, dest_ip):
@@ -79,10 +91,13 @@ class Client(Base):
 
     def pull_file(self, filename, source_uname, source_ip):
         """Pull file 'filename' from the source."""
-        my_file = Base.get_dest_path(filename, self.username)
+        my_file = filename.replace("/.tsync", "")
+        my_file = Base.get_dest_path(my_file, self.username, self.role)
+        print("my file is ", my_file)
         self.pulled_files.add(my_file)
         proc = subprocess.Popen(['scp', f"{source_uname}@{source_ip}:{filename}", my_file])
         return_status = proc.wait()
+        logger.debug("logging from pull_file of client on filename %s", my_file)
         logger.debug("Returned status %s", return_status)
 
     def get_public_key(self):
@@ -123,18 +138,26 @@ class Client(Base):
                 time.sleep(10)
                 for filedata in self.mfiles.list():
                     filename = filedata.name
-                    logger.info("Push filedata object to server %s", filedata)
-                    dest_file = sxmlr.req_push_file(self.server_ip, self.server_port, filedata, self.username, self.ip, self.port)
-                    logger.debug("Destination file name %s", dest_file)
+                    logger.info("Attempting to push file: %s", filename)
+                    dest_file = sxmlr.req_push_file(self.server_ip, self.server_port, filedata, self.username, self.ip,
+                                                    self.port)
+                    logger.debug("Destination file path received: %s", dest_file)
                     if dest_file is None:
+                        logger.error("Failed to get destination file path for %s", filename)
                         break
                     push_status = self.push_file(filename, dest_file, self.server_uname, self.server_ip)
+                    logger.debug("Push file status for %s: %s", filename, push_status)
                     if push_status < 0:
+                        logger.error("Failed to push file %s", filename)
                         break
-                    rpc_status = sxmlr.ack_push_file(self.server_ip, self.server_port, dest_file, self.username, self.ip, self.port)
+                    rpc_status = sxmlr.ack_push_file(self.server_ip, self.server_port, dest_file, self.username,
+                                                     self.ip, self.port)
+                    logger.debug("Acknowledgement status for file %s: %s", dest_file, rpc_status)
                     if rpc_status is None:
+                        logger.error("Failed to get acknowledgement for file %s", dest_file)
                         break
                     self.mfiles.remove(filename)
+                    logger.info("Successfully synced and removed file: %s", filename)
                 self.mfiles.update_modified_timestamp()
             except KeyboardInterrupt:
                 break

@@ -40,7 +40,7 @@ class Base:
         self.server.funcs['req_push_file'] = self.req_push_file
         self.server.funcs['ack_push_file'] = self.ack_push_file
         self.server.funcs['get_public_key'] = self.get_public_key
-        self.server.funcs['pull_file'] = self.pull_file
+        #self.server.funcs['pull_file'] = self.pull_file
 
     def ack_push_file(self, *args):
         """Acknowledge the successful push of a file."""
@@ -50,27 +50,35 @@ class Base:
     def req_push_file(self, filename, dest_uname, dest_ip):
         """Handle the req_push_file XML-RPC request."""
         logger.debug("Received request to push file: %s to %s@%s", filename, dest_uname, dest_ip)
-        self.push_file(filename, dest_uname, dest_ip)
+
+        # Modify the destination path to include .tsync
+        dest_path = os.path.join("/home", dest_uname, ".tsync", filename.lstrip('/'))
+
+        self.push_file(filename, dest_path, dest_ip)
         return True
 
     @staticmethod
-    def get_dest_path(filename, dest_uname):
+    def get_dest_path(filename, dest_uname, role):
         """Get the destination path for a file, replacing the username in the path."""
         user_dir_pattern = re.compile("/home/[^ ]*?/")
         destpath = None
         if re.search(user_dir_pattern, filename):
-            destpath = user_dir_pattern.sub(f"/home/{dest_uname}/", filename)
+            if role == 'server':
+                destpath = user_dir_pattern.sub(f"/home/{dest_uname}/.tsync/", filename)
+            else:  # role == 'client'
+                destpath = user_dir_pattern.sub(f"/home/{dest_uname}/", filename)
         logger.debug("Destination path: %s", destpath)
         return destpath
 
+
     @staticmethod
-    def push_file(filename, dest_uname, dest_ip):
+    def push_file(filename, dest_uname, dest_ip, role):
         """Push a file to the destination user and IP using scp."""
         try:
-            dest_path = Base.get_dest_path(filename, dest_uname)
+            dest_path = Base.get_dest_path(filename, dest_uname, role)
             proc = subprocess.Popen(['scp', filename, f"{dest_uname}@{dest_ip}:{dest_path}"])
             return_status = proc.wait()
-            logger.debug("SCP returned status: %s", return_status)
+            logger.debug("SCP returned status in push_file of base class: %s", return_status)
         except Exception as e:
             logger.error("Error pushing file: %s", e)
 
@@ -94,22 +102,41 @@ class Base:
 
         return pubkey
 
-    def pull_file(self, filename, source_uname, source_ip):
-        """Pull file 'filename' from the source."""
-        my_file = Base.get_dest_path(filename, self.username)
-        proc = subprocess.Popen(['scp', f"{source_uname}@{source_ip}:{filename}", my_file])
-        return_status = proc.wait()
-        logger.debug("SCP returned status: %s", return_status)
+    # def pull_file(self, filename, source_uname, source_ip , role):
+    #     """Pull file 'filename' from the source."""
+    #     my_file = Base.get_dest_path(filename, self.username, self.role)
+    #     proc = subprocess.Popen(['scp', f"{source_uname}@{source_ip}:{filename}", my_file])
+    #     return_status = proc.wait()
+    #     logger.debug("SCP returned status: %s", return_status)
 
     def dir_maker(self):
         """Create directories if they do not exist."""
+        base_dir = f"/home/{self.username}/.tsync"
+        if not os.path.isdir(base_dir):
+            try:
+                os.makedirs(base_dir)
+                logger.info("Created directory: %s", base_dir)
+            except Exception as e:
+                logger.error("Error creating directory %s: %s", base_dir, e)
+
         for dir in self.watch_dirs:
+            # Create the original directory if it doesn't exist
             if not os.path.isdir(dir):
                 try:
                     os.makedirs(dir)
                     logger.info("Created directory: %s", dir)
                 except Exception as e:
                     logger.error("Error creating directory %s: %s", dir, e)
+
+            # Create a corresponding directory inside .tsync
+            relative_dir = os.path.relpath(dir, start='/home/' + self.username)
+            tsync_dir = os.path.join(base_dir, relative_dir)
+            if not os.path.isdir(tsync_dir):
+                try:
+                    os.makedirs(tsync_dir)
+                    logger.info("Created directory: %s", tsync_dir)
+                except Exception as e:
+                    logger.error("Error creating directory %s: %s", tsync_dir, e)
 
     def begin(self):
         """Start the XML-RPC server."""

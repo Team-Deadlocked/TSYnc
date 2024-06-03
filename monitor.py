@@ -17,12 +17,12 @@ def setup_logging(log_filename):
     logger.info('Logging started on file %s', log_filename)
 
 
-def get_watch_dirs(config, user_name):
+def get_watch_dirs(config, user_name, role):
     """Retrieve and return directories to watch from configuration."""
     watch_dirs = []
     for key, value in config.items('syncit.dirs'):
         dir = os.path.expanduser(value.strip())
-        my_dir = Base.get_dest_path(dir, user_name)
+        my_dir = Base.get_dest_path(dir, user_name, role)
         watch_dirs.append(my_dir)
     logger.debug("Watched dirs: %s", watch_dirs)
     return watch_dirs
@@ -70,10 +70,10 @@ def main():
     config = load_config()
 
     if args.role == 'server':
-        node = Server(args.role, args.ip, int(args.port), args.uname, get_watch_dirs(config, args.uname),
+        node = Server(args.role, args.ip, int(args.port), args.uname, get_watch_dirs(config, args.uname, args.role),
                       get_clients(config))
     else:
-        node = Client(args.role, args.ip, int(args.port), args.uname, get_watch_dirs(config, args.uname),
+        node = Client(args.role, args.ip, int(args.port), args.uname, get_watch_dirs(config, args.uname, args.role),
                       get_server_tuple(config))
 
     node.activate()

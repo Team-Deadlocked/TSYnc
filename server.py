@@ -1,4 +1,5 @@
 import logging
+import shutil
 import re
 import threading
 import time
@@ -51,7 +52,9 @@ class Server(Base):
     def req_push_file(self, filedata, source_uname, source_ip, source_port):
         """Handle file push request from a client."""
         logger.debug("server filedata %s %s", filedata['name'], list(filedata.keys()))
-        my_file = Base.get_dest_path(filedata['name'], self.username)
+
+        # Add self.role as an argument to the get_dest_path method
+        my_file = Base.get_dest_path(filedata['name'], self.username, self.role)
 
         if self.collision_check(filedata):
             server_filename = f"{my_file}.backup.{filedata['time']}.{source_uname}.{source_ip}:{source_port}"
@@ -69,12 +72,13 @@ class Server(Base):
         for client in self.clients:
             if (client.ip, client.port) == (source_ip, source_port):
                 continue
-            client.mfiles.add(server_filename)
+            client.mfiles.add(server_filename)  # the file is in the server's directory ./.tsync
             logger.debug("File added to modified list for client %s", client.uname)
 
     def collision_check(self, filedata):
         """Check for file collision based on modification time."""
-        my_file = Base.get_dest_path(filedata['name'], self.username)
+        # Add self.role as an argument to the get_dest_path method
+        my_file = Base.get_dest_path(filedata['name'], self.username, self.role)
         try:
             collision_exist = os.path.getmtime(my_file) > filedata['time']
             logger.debug("Collision check: server time %s  client time %s", os.path.getmtime(my_file), filedata['time'])
