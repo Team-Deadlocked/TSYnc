@@ -5,7 +5,7 @@ import xmlrpc.client
 from xmlrpc.server import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 import time
 
-logger = logging.getLogger('syncIt')
+logger = logging.getLogger('tsync')
 logger.setLevel(logging.DEBUG)
 
 def make_safer(fn):

@@ -6,7 +6,7 @@ import re
 import subprocess
 import traceback
 
-logger = logging.getLogger("syncIt")
+logger = logging.getLogger("tsync")
 logger.setLevel(logging.DEBUG)
 
 class FunctionHandler(SimpleXMLRPCRequestHandler):

@@ -8,7 +8,7 @@ import os
 from parent import Base
 from persistence import FileData, FilesPersistentSet
 
-logger = logging.getLogger('syncIt')
+logger = logging.getLogger('tsync')
 logger.setLevel(logging.DEBUG)
 
 

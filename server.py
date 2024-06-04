@@ -10,7 +10,7 @@ import os
 import sxmlr
 from persistence import FileData, FilesPersistentSet, PersistentSet
 
-logger = logging.getLogger('syncIt')
+logger = logging.getLogger('tsync')
 logger.setLevel(logging.DEBUG)
 
 def is_collision_file(filename):

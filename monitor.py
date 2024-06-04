@@ -6,7 +6,7 @@ from parent import Base
 from server import Server, ClientData
 from client import Client
 
-logger = logging.getLogger('syncIt')
+logger = logging.getLogger('tsync')
 
 
 def setup_logging(log_filename):
@@ -20,7 +20,7 @@ def setup_logging(log_filename):
 def get_watch_dirs(config, user_name, role):
     """Retrieve and return directories to watch from configuration."""
     watch_dirs = []
-    for key, value in config.items('syncit.dirs'):
+    for key, value in config.items('tsync.dirs'):
         dir = os.path.expanduser(value.strip())
         my_dir = Base.get_dest_path(dir, user_name, role)
         watch_dirs.append(my_dir)
@@ -31,7 +31,7 @@ def get_watch_dirs(config, user_name, role):
 def get_clients(config):
     """Retrieve and return client data from configuration."""
     clients = []
-    for key, value in config.items('syncit.clients'):
+    for key, value in config.items('tsync.clients'):
         client_uname, client_ip, client_port = [word.strip() for word in value.split(',')]
         clients.append(ClientData(client_uname, client_ip, int(client_port)))
     logger.debug("Client data: %s", clients)
@@ -40,13 +40,13 @@ def get_clients(config):
 
 def get_server_tuple(config):
     """Retrieve and return server information from configuration."""
-    server_info = config.get('syncit.server', 'server')
+    server_info = config.get('tsync.server', 'server')
     server_uname, server_ip, server_port = [item.strip() for item in server_info.split(',')]
     logger.debug("Server info: %s, %s, %s", server_uname, server_ip, server_port)
     return server_uname, server_ip, server_port
 
 
-def load_config(config_file='syncit.cfg'):
+def load_config(config_file='tsync.cfg'):
     """Load configuration from the specified file."""
     config = configparser.ConfigParser()
     config.read(config_file)
@@ -56,7 +56,7 @@ def load_config(config_file='syncit.cfg'):
 
 def main():
     """Main entry point for the script."""
-    parser = argparse.ArgumentParser(description="PySyncIt", formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(description="TSYnc", formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('-ip', help='Specify the IP address of this machine', required=True)
     parser.add_argument('-port', help='Specify the port of this machine to run RPC server', required=True)
     parser.add_argument('-uname', help='Specify the user name of this machine', required=True)
@@ -64,7 +64,7 @@ def main():
 
     args = parser.parse_args()
 
-    log_filename = f"syncit.log.{args.ip}-{args.port}"
+    log_filename = f"tsync.log.{args.ip}-{args.port}"
     setup_logging(log_filename)
 
     config = load_config()
