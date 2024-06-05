@@ -2,14 +2,18 @@ import os
 import pickle
 import time
 
+
 class FileData:
     """Class to hold file name and modification time."""
+
     def __init__(self, file_name, mod_time):
         self.name = file_name
         self.time = mod_time
 
+
 class PersistentSet:
     """Class to manage a persistent set of items using pickle."""
+
     def __init__(self, pkl_filename):
         self.pkl_filename = pkl_filename
         self.timestamp = None
@@ -60,46 +64,3 @@ class PersistentSet:
         with open(self.pkl_filename, 'wb') as pkl_file:
             pickle.dump(self.set, pkl_file)
             pickle.dump(time.time(), pkl_file)
-
-class FilesPersistentSet(PersistentSet):
-    """Class to manage a persistent set of file data."""
-    def __init__(self, pkl_filename):
-        super().__init__(pkl_filename)
-
-    def add(self, file_name, modified_time):
-        """Add a file with its modification time to the set."""
-        super().add(FileData(file_name, modified_time))
-
-    def remove(self, file_name):
-        """Remove a file from the set."""
-        self.set = {filedata for filedata in self.set if filedata.name != file_name}
-        self._save_set()
-
-    def get(self, file_name):
-        """Retrieve a FileData object based on the file name."""
-        for filedata in self.set:
-            if filedata.name == file_name:
-                return filedata
-        return None
-
-# In client.py
-# class Client(Base):
-#     def __init__(self, role, ip, port, uname, watch_dirs, server_details):
-#         super(Client, self).__init__(role, ip, port, uname, watch_dirs)
-#         self.server_uname, self.server_ip, self.server_port = server_details
-#         self.mfiles = FilesPersistentSet(pkl_filename='client.pkl')
-#         self.rfiles = set()
-#         self.pulled_files = set()
-#         self.server_available = True
-#
-#     def find_modified(self):
-#         """Find and mark modified files."""
-#         for directory in self.watch_dirs:
-#             for root, _, files in os.walk(directory):
-#                 for file in files:
-#                     file_path = os.path.join(root, file)
-#                     mtime = os.path.getmtime(file_path)
-#                     filedata = self.mfiles.get(file_path)
-#                     if filedata is None or filedata.time < mtime:
-#                         logger.debug("File %s modified", file_path)
-#                         self.mfiles.add(file_path, mtime)

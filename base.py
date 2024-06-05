@@ -6,11 +6,13 @@ import re
 import subprocess
 import traceback
 
-logger = logging.getLogger("syncIt")
+logger = logging.getLogger("tsync")
 logger.setLevel(logging.DEBUG)
+
 
 class FunctionHandler(SimpleXMLRPCRequestHandler):
     """Custom request handler to return a requested function call from the server side."""
+
     def _dispatch(self, method, params):
         try:
             logger.debug("Server type: %s", type(self.server))
@@ -20,8 +22,10 @@ class FunctionHandler(SimpleXMLRPCRequestHandler):
             traceback.print_exc()
             raise
 
+
 class Base:
     """Base class for both Server and Client."""
+
     def __init__(self, role, ip, port, uname, watch_dirs):
         self.role = role
         self.ip = ip
@@ -69,7 +73,6 @@ class Base:
                 destpath = user_dir_pattern.sub(f"/home/{dest_uname}/", filename)
         logger.debug("Destination path: %s", destpath)
         return destpath
-
 
     @staticmethod
     def push_file(filename, dest_uname, dest_ip, role):
@@ -146,7 +149,8 @@ class Base:
 
     def begin_sync_thread(self):
         """Start the synchronization thread."""
-        sync_thread = threading.Thread(target=self.sync_files)  # Call the respective sync_files method of the server/client
+        sync_thread = threading.Thread(
+            target=self.sync_files)  # Call the respective sync_files method of the server/client
         sync_thread.start()
         logger.info("Sync thread started")
 

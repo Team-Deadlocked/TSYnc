@@ -1,22 +1,23 @@
 import logging
-import shutil
 import re
-import threading
 import time
 import errno
-from parent import Base
-import subprocess
+from base import Base
 import os
 import sxmlr
-from persistence import FileData, FilesPersistentSet, PersistentSet
+from persistence import PersistentSet
 
-logger = logging.getLogger('syncIt')
+from plyer import notification
+
+logger = logging.getLogger('tsync')
 logger.setLevel(logging.DEBUG)
+
 
 def is_collision_file(filename):
     """Check if the given filename is a collision backup file."""
     backup_file_pattern = re.compile(r"\.backup\.[1-9]+\.")
     return re.search(backup_file_pattern, filename) is not None
+
 
 class ClientData:
     """Data corresponding to each client residing in server object."""
@@ -27,6 +28,7 @@ class ClientData:
         self.uname = client_uname
         self.ip = client_ip
         self.port = client_port
+
 
 class Server(Base):
     """Server class to manage file synchronization and client availability."""
@@ -66,8 +68,14 @@ class Server(Base):
 
     def ack_push_file(self, server_filename, source_uname, source_ip, source_port):
         """Acknowledge the successful push of a file."""
-        # if is_collision_file(server_filename):
-        #     return
+        if is_collision_file(server_filename):
+            notification_title = "Collision Detected"
+            notification_text = f"Collision detected for file {server_filename}."
+            notification.notify(
+                title=notification_title,
+                message=notification_text,
+                app_name='TSYnc'
+            )
 
         for client in self.clients:
             if (client.ip, client.port) == (source_ip, source_port):
@@ -152,6 +160,7 @@ class Server(Base):
         except Exception as e:
             logger.error("Error reading public key file: %s", e)
             return None
+
     def activate(self):
         """Activate the server node."""
         super(Server, self).activate()

@@ -1,68 +1,17 @@
 import logging
 import sxmlr
-from pyinotify import WatchManager, Notifier, ProcessEvent, EventsCodes
+from pyinotify import WatchManager, Notifier, EventsCodes
 import subprocess
 import time
 import threading
 import os
-from parent import Base
-from persistence import FileData, FilesPersistentSet
+from base import Base
+from filewatcher import Filewatcher
+from filepersistentset import FilesPersistentSet
+from timekeeper import TimeKeeper
 
-logger = logging.getLogger('syncIt')
+logger = logging.getLogger('tsync')
 logger.setLevel(logging.DEBUG)
-
-
-class PTmp(ProcessEvent):
-    """Find which files to sync."""
-
-    def __init__(self, mfiles, rfiles, pulled_files):
-        self.mfiles = mfiles
-        self.rfiles = rfiles
-        self.pulled_files = pulled_files
-
-    def process_IN_CREATE(self, event):
-        filename = os.path.join(event.path, event.name)
-        if filename not in self.pulled_files:
-            # Add a delay before adding the file to the mfiles set
-            time.sleep(5)
-            self.mfiles.add(filename, time.time())
-            logger.info("Created file: %s", filename)
-        else:
-            self.pulled_files.remove(filename)
-
-    def process_IN_DELETE(self, event):
-        filename = os.path.join(event.path, event.name)
-        self.rfiles.add(filename)
-        try:
-            self.mfiles.remove(filename)
-        except KeyError:
-            pass
-        logger.info("Removed file: %s", filename)
-
-    def process_IN_MODIFY(self, event):
-        filename = os.path.join(event.path, event.name)
-        if filename not in self.pulled_files:
-            time.sleep(5)
-            self.mfiles.add(filename, time.time())
-            logger.info("Modified file: %s", filename)
-        else:
-            self.pulled_files.remove(filename)
-
-    # def process_IN_MODIFY(self, event):
-    #     filename = os.path.join(event.path, event.name)
-    #     current_time = time.time()
-    #     if filename not in self.pulled_files:
-    #         file_exists = False
-    #         for filedata in self.mfiles.list():
-    #             if filedata.name == filename:
-    #                 file_exists = True
-    #                 last_modified_time = filedata.time
-    #                 break
-    #         if file_exists and current_time - last_modified_time > 150:
-    #             self.mfiles.add(filename, current_time)
-    #             logger.info("Modified file: %s", filename)
-    #     else:
-    #         self.pulled_files.remove(filename)
 
 
 class Client(Base):
@@ -122,13 +71,17 @@ class Client(Base):
 
     def find_modified(self):
         """Find and mark modified files."""
+        last_sync_time = TimeKeeper.get_time()
         for directory in self.watch_dirs:
             for root, _, files in os.walk(directory):
                 for file in files:
                     file_path = os.path.join(root, file)
                     mtime = os.path.getmtime(file_path)
-                    if self.mfiles.get(file_path) is None or self.mfiles.get(file_path).time < mtime:
-                        logger.debug("File %s modified", file_path)
+                    print("mtime is ", mtime, "last sync time is ", last_sync_time)
+                    print("mtime - last_sync_time", mtime - last_sync_time)
+                    if mtime - last_sync_time > 20 and file_path not in self.pulled_files:
+                        print("I am the stupid find modifid", file)
+                        logger.debug("File %s modified in stupid find_modified", file_path)
                         self.mfiles.add(file_path, mtime)
 
     def sync_files(self):
@@ -159,6 +112,7 @@ class Client(Base):
                     self.mfiles.remove(filename)
                     logger.info("Successfully synced and removed file: %s", filename)
                 self.mfiles.update_modified_timestamp()
+                TimeKeeper.update_time()
             except KeyboardInterrupt:
                 break
 
@@ -169,7 +123,7 @@ class Client(Base):
             mask = EventsCodes.FLAG_COLLECTIONS['OP_FLAGS']['IN_CREATE'] | \
                    EventsCodes.FLAG_COLLECTIONS['OP_FLAGS']['IN_DELETE'] | \
                    EventsCodes.FLAG_COLLECTIONS['OP_FLAGS']['IN_MODIFY']
-            notifier = Notifier(wm, PTmp(self.mfiles, self.rfiles, self.pulled_files))
+            notifier = Notifier(wm, Filewatcher(self.mfiles, self.rfiles, self.pulled_files))
 
             logger.debug("Watched directories %s", self.watch_dirs)
             for watch_dir in self.watch_dirs:
