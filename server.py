@@ -9,6 +9,7 @@ import subprocess
 import os
 import sxmlr
 from persistence import FileData, FilesPersistentSet, PersistentSet
+from plyer import notification
 
 logger = logging.getLogger('tsync')
 logger.setLevel(logging.DEBUG)
@@ -66,8 +67,14 @@ class Server(Base):
 
     def ack_push_file(self, server_filename, source_uname, source_ip, source_port):
         """Acknowledge the successful push of a file."""
-        # if is_collision_file(server_filename):
-        #     return
+        if is_collision_file(server_filename):
+            notification_title = "Collision Detected"
+            notification_text = f"Collision detected for file {server_filename}."
+            notification.notify(
+                title=notification_title,
+                message=notification_text,
+                app_name='TSYnc'
+            )
 
         for client in self.clients:
             if (client.ip, client.port) == (source_ip, source_port):
