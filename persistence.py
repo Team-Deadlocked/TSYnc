@@ -82,24 +82,24 @@ class FilesPersistentSet(PersistentSet):
                 return filedata
         return None
 
-# In client.py
-# class Client(Base):
-#     def __init__(self, role, ip, port, uname, watch_dirs, server_details):
-#         super(Client, self).__init__(role, ip, port, uname, watch_dirs)
-#         self.server_uname, self.server_ip, self.server_port = server_details
-#         self.mfiles = FilesPersistentSet(pkl_filename='client.pkl')
-#         self.rfiles = set()
-#         self.pulled_files = set()
-#         self.server_available = True
-#
-#     def find_modified(self):
-#         """Find and mark modified files."""
-#         for directory in self.watch_dirs:
-#             for root, _, files in os.walk(directory):
-#                 for file in files:
-#                     file_path = os.path.join(root, file)
-#                     mtime = os.path.getmtime(file_path)
-#                     filedata = self.mfiles.get(file_path)
-#                     if filedata is None or filedata.time < mtime:
-#                         logger.debug("File %s modified", file_path)
-#                         self.mfiles.add(file_path, mtime)
+import time
+import os
+
+class TimeKeeper:
+    """Class to store and retrieve the current time in a file."""
+
+    @staticmethod
+    def update_time(filename='time_keeper.txt'):
+        """Store the current time in the file."""
+        with open(filename, 'w') as file:
+            file.write(str(time.time()))
+
+    @staticmethod
+    def get_time(filename='time_keeper.txt'):
+        """Retrieve the stored time from the file."""
+        if os.path.exists(filename):
+            with open(filename, 'r') as file:
+                stored_time = file.read()
+                if stored_time:
+                    return float(stored_time)
+        return None

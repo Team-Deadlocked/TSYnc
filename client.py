@@ -6,7 +6,7 @@ import time
 import threading
 import os
 from parent import Base
-from persistence import FileData, FilesPersistentSet
+from persistence import FileData, FilesPersistentSet,TimeKeeper
 
 logger = logging.getLogger('tsync')
 logger.setLevel(logging.DEBUG)
@@ -122,13 +122,17 @@ class Client(Base):
 
     def find_modified(self):
         """Find and mark modified files."""
+        last_sync_time = TimeKeeper.get_time()
         for directory in self.watch_dirs:
             for root, _, files in os.walk(directory):
                 for file in files:
                     file_path = os.path.join(root, file)
                     mtime = os.path.getmtime(file_path)
-                    if self.mfiles.get(file_path) is None or self.mfiles.get(file_path).time < mtime:
-                        logger.debug("File %s modified", file_path)
+                    print("mtime is ", mtime, "last sync time is ", last_sync_time)
+                    print("mtime - last_sync_time", mtime - last_sync_time)
+                    if mtime - last_sync_time > 20 and file_path not in self.pulled_files:
+                        print("I am the stupid find modifid", file)
+                        logger.debug("File %s modified in stupid find_modified", file_path)
                         self.mfiles.add(file_path, mtime)
 
     def sync_files(self):
@@ -159,6 +163,7 @@ class Client(Base):
                     self.mfiles.remove(filename)
                     logger.info("Successfully synced and removed file: %s", filename)
                 self.mfiles.update_modified_timestamp()
+                TimeKeeper.update_time()
             except KeyboardInterrupt:
                 break
 
