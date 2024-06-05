@@ -2,7 +2,7 @@ import argparse
 import logging
 import configparser
 import os
-from parent import Base
+from base import Base
 from server import Server, ClientData
 from client import Client
 
@@ -70,13 +70,13 @@ def main():
     config = load_config()
 
     if args.role == 'server':
-        node = Server(args.role, args.ip, int(args.port), args.uname, get_watch_dirs(config, args.uname, args.role),
+        processes = Server(args.role, args.ip, int(args.port), args.uname, get_watch_dirs(config, args.uname, args.role),
                       get_clients(config))
     else:
-        node = Client(args.role, args.ip, int(args.port), args.uname, get_watch_dirs(config, args.uname, args.role),
+        processes = Client(args.role, args.ip, int(args.port), args.uname, get_watch_dirs(config, args.uname, args.role),
                       get_server_tuple(config))
 
-    node.activate()
+    processes.activate()
 
 
 if __name__ == "__main__":
