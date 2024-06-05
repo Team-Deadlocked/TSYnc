@@ -31,9 +31,9 @@ def get_username():
 def start_processes(username, ip_address):
     """Start the server and client processes."""
     server_process = subprocess.Popen(
-        ['python3', 'monitor.py', '-ip', ip_address, '-port', '8081', '-uname', username, '-role', 'server'])
-    client_process = subprocess.Popen(
         ['python3', 'monitor.py', '-ip', ip_address, '-port', '8082', '-uname', username, '-role', 'client'])
+    client_process = subprocess.Popen(
+        ['python3', 'monitor.py', '-ip', ip_address, '-port', '8081', '-uname', username, '-role', 'server'])
 
     # Write the PIDs to files
     with open(SERVER_PID_FILE, 'w') as f:
