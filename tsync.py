@@ -7,6 +7,7 @@ import socket
 # Define paths for the PID files
 SERVER_PID_FILE = 'server.pid'
 CLIENT_PID_FILE = 'client.pid'
+LOG_FILE = 'tsync.log.out'
 
 
 def get_internal_ip():
@@ -30,18 +31,21 @@ def get_username():
 
 def start_processes(username, ip_address):
     """Start the server and client processes."""
-    server_process = subprocess.Popen(
-        ['python3', 'monitor.py', '-ip', ip_address, '-port', '8081', '-uname', username, '-role', 'server'])
-    client_process = subprocess.Popen(
-        ['python3', 'monitor.py', '-ip', ip_address, '-port', '8082', '-uname', username, '-role', 'client'])
+    with open(LOG_FILE, 'a') as log_file:
+        server_process = subprocess.Popen(
+            ['python3', 'monitor.py', '-ip', ip_address, '-port', '8082', '-uname', username, '-role', 'client'],
+            stdout=log_file, stderr=subprocess.STDOUT)
+        client_process = subprocess.Popen(
+            ['python3', 'monitor.py', '-ip', ip_address, '-port', '8081', '-uname', username, '-role', 'server'],
+            stdout=log_file, stderr=subprocess.STDOUT)
 
-    # Write the PIDs to files
-    with open(SERVER_PID_FILE, 'w') as f:
-        f.write(str(server_process.pid))
-    with open(CLIENT_PID_FILE, 'w') as f:
-        f.write(str(client_process.pid))
+        # Write the PIDs to files
+        with open(SERVER_PID_FILE, 'w') as f:
+            f.write(str(server_process.pid))
+        with open(CLIENT_PID_FILE, 'w') as f:
+            f.write(str(client_process.pid))
 
-    print(f"Started server (PID {server_process.pid}) and client (PID {client_process.pid})")
+        print(f"Started server (PID {server_process.pid}) and client (PID {client_process.pid})")
 
 
 def stop_process(pid_file):
